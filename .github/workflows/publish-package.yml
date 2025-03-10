@@ -19,20 +19,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          
       - name: Extract version from tag
-        run: echo "$VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+        
       - name: Update pyproject.toml with new version
         run: |
           sed -i 's|^version = "[^"]*"|version = "'"$VERSION"'"|' pyproject.toml
+          
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install build dependencies
-        run: uv pip install --system twine
+        run: uv pip install --system build
 
       - name: Build package
-        run: uv build
+        run: python -m build
+        
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
