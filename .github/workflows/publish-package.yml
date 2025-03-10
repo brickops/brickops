@@ -22,9 +22,9 @@ jobs:
           
       - name: Extract version from tag
         run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-          echo "VERSION=${GITHUB_REF#refs/tags/v}"
-          echo "ref:  ${GITHUB_REF#refs/tags/v}"
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          echo "VERSION=${GITHUB_REF#refs/tags/}"
+          echo "ref:  ${GITHUB_REF#refs/tags/}"
 
         
       - name: Update pyproject.toml with new version
