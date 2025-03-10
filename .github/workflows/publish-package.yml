@@ -24,7 +24,9 @@ jobs:
         run: |
           echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
           echo "VERSION=${GITHUB_REF#refs/tags/v}"
-          echo "ref:  ${GITHUB_REF#refs/tags/v}"
+          echo "ref:  ${GITHUB_REF#refs/tags/v}"  # refs/tags/v0.3.1
+
+
 
         
       - name: Update pyproject.toml with new version
