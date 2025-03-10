@@ -1,6 +1,6 @@
 [project]
 name = "brickops"
-version = "0.2.0"
+version = "0.3.0"
 description = "Knowit's dataops library - simplifying building data pipelines in Databricks, for both testing and production use cases. The package enables a workflow where users write their code in notebooks, and then deploy them to a Databricks workspace without stepping on each other's toes."
 readme = "README.md"
 requires-python = ">=3.11"

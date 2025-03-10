@@ -1,10 +1,10 @@
 name: Publish to PyPI
 
 on:
-  workflow_dispatch:
-  release:
-    types: [created]
-
+  push:
+    tags:
+    - 'v*'
+    
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
