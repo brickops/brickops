@@ -21,7 +21,10 @@ jobs:
           python-version: "3.11"
           
       - name: Extract version from tag
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "VERSION=${GITHUB_REF#refs/tags/v}"
+          echo "ref:  ${GITHUB_REF#refs/tags/v}"
 
         
       - name: Update pyproject.toml with new version
