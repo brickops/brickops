@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Extract version from tag
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "$VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Update pyproject.toml with new version
         run: |
           sed -i 's|^version = "[^"]*"|version = "'"$VERSION"'"|' pyproject.toml
