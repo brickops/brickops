@@ -2,7 +2,7 @@ import pytest
 
 from src.databricks.context import DbContext
 from src.datamesh.naming import (
-    build_table_name,
+    tablename,
     dbname,
     extract_catname_from_path,
     parse_path,
@@ -80,33 +80,33 @@ def db_context() -> DbContext:
     )
 
 
-def test_that_build_table_name_in_test_contains_user_and_branch(
+def test_that_tablename_in_test_contains_user_and_branch(
     db_context: DbContext,
 ) -> None:
     db_context.widgets["git_branch"] = "feat/new_branch"
-    result = build_table_name(
+    result = tablename(
         tbl="test_tbl", db="test_db", cat="training", db_context=db_context
     )
 
     assert result == "training.TestUser_featnewbranch_abcdefgh_test_db.test_tbl"
 
 
-def test_that_build_table_name_in_prod_does_not_contain_user_and_branch(
+def test_that_tablename_in_prod_does_not_contain_user_and_branch(
     db_context: DbContext,
 ) -> None:
     db_context.username = "ServicePrincipal name"  # we are implicitly in prod when username does not contains @
-    result = build_table_name(
+    result = tablename(
         tbl="test_tbl", db="test_db", cat="training", db_context=db_context
     )
 
     assert result == "training.test_db.test_tbl"
 
 
-def test_that_build_table_name_with_norwegian_characters_in_table_results_in_backticked_name(
+def test_that_tablename_with_norwegian_characters_in_table_results_in_backticked_name(
     db_context: DbContext,
 ) -> None:
     db_context.username = "ServicePrincipal"
-    result = build_table_name(
+    result = tablename(
         tbl="test_tøbbel",
         db="test_db",
         cat="training",
@@ -116,11 +116,11 @@ def test_that_build_table_name_with_norwegian_characters_in_table_results_in_bac
     assert result == "training.test_db.`test_tøbbel`"
 
 
-def test_that_build_table_name_with_norwegian_characters_in_catalog_and_table_results_in_backticked_names(
+def test_that_tablename_with_norwegian_characters_in_catalog_and_table_results_in_backticked_names(
     db_context: DbContext,
 ) -> None:
     db_context.username = "ServicePrincipal"
-    result = build_table_name(
+    result = tablename(
         tbl="test_tøbbel",
         db="test_db",
         cat="træning",

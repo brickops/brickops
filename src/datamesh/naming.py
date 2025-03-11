@@ -13,19 +13,19 @@ if TYPE_CHECKING:
     from src.databricks.context import DbContext
 
 
-def escape_sql_name(name: str) -> str:
+def _escape_sql_name(name: str) -> str:
     parts = name.split(".")
     return ".".join(
-        [escape_norwegian_chars(part) if "`" not in part else part for part in parts]
+        [_escape_norwegian_chars(part) if "`" not in part else part for part in parts]
     )
 
 
-def escape_norwegian_chars(name: str) -> str:
+def _escape_norwegian_chars(name: str) -> str:
     norwegian_chars = ["æ", "ø", "å"]
     return f"`{name}`" if any((c in norwegian_chars) for c in name) else name
 
 
-def build_table_name(
+def tablename(
     tbl: str,
     db: str,
     cat: str | None = None,
@@ -45,7 +45,7 @@ def build_table_name(
         db_context = get_context()
 
     db_name = dbname(db=db, cat=cat, db_context=db_context)
-    return escape_sql_name(f"{db_name}.{tbl}")
+    return _escape_sql_name(f"{db_name}.{tbl}")
 
 
 def dbname(
@@ -61,7 +61,7 @@ def dbname(
         db_context = get_context()
     env = current_env(db_context)
     db_prefix = dbprefix(env=env, db_context=db_context)
-    return escape_sql_name(f"{cat}.{db_prefix}{db}")
+    return _escape_sql_name(f"{cat}.{db_prefix}{db}")
 
 
 def dbprefix(env: str, db_context: DbContext) -> str:
@@ -119,7 +119,7 @@ def parse_path(path: str) -> tuple[str, str, str] | None:
     return domain, project, flow
 
 
-def extract_catname_from_path(path: str) -> str:
+def _extract_catname_from_path(path: str) -> str:
     """Derive catalog name from repo data mesh structure.
 
     We simply use domain as base catalog name.
@@ -140,4 +140,4 @@ def catname_from_path() -> str:
     """
     db_context = get_context()
     nb_path = db_context.notebook_path
-    return escape_sql_name(extract_catname_from_path(nb_path))
+    return _escape_sql_name(_extract_catname_from_path(nb_path))

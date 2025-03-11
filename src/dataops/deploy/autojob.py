@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any
 
 from src.databricks import api
 from src.databricks.context import DbContext, current_env, get_context
-from src.dataops.deploy.buildconfig import build_job_config
-from src.dataops.deploy.readconfig import read_config_yaml
+from src.dataops.deploy.job.buildconfig import build_job_config
+from src.dataops.deploy.job.readconfig import read_config_yaml
 from src.dataops.deploy.repo import git_source
 
 if TYPE_CHECKING:

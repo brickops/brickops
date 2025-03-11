@@ -1,35 +1,38 @@
-from __future__ import annotations
-
-import logging
-from typing import TYPE_CHECKING, Any
-
-from src.databricks import api
-
-if TYPE_CHECKING:
-    from src.databricks.context import DbContext
+import requests
+from libs.dataops.deploy import api
+from libs.dataops.deploy.nbpath import nbrepopath
 
 
-def git_source(db_context: DbContext) -> dict[str, Any]:
-    """Get git source information for a repo."""
-    if not db_context.api_url:
-        return {}
+def git_source(dbutils):
+    api_token = api.api_token(dbutils)
+    api_host = api.api_host(dbutils)
+    _nbrepopath = nbrepopath(dbutils)
+    repo_dir_data = _get_status(
+        api_token=api_token, api_host=api_host, _nbrepopath=_nbrepopath
+    )
+    print("repo_dir_data: " + repr(repo_dir_data))
+    repo_id = repo_dir_data["object_id"]
+    repo = _get_repo(api_token=api_token, api_host=api_host, repo_id=repo_id)
+    print("repo: " + repr(repo))
+    return {
+        "git_url": repo["url"],
+        "git_provider": repo["provider"],
+        "git_branch": repo["branch"],
+        "git_commit": repo["head_commit_id"],
+    }
 
-    try:
-        api_client = api.ApiClient(db_context.api_url, db_context.api_token)
-        repos = api_client.get_repos()
-        repo = next(r for r in repos if db_context.notebook_path.startswith(r["path"]))
-        return {
-            "git_url": repo["url"],
-            "git_provider": repo["provider"],
-            "git_branch": repo.get("branch", ""),
-            "git_commit": repo["head_commit_id"],
-            "git_path": repo["path"],
-        }
-    except api.ApiClientError:
-        logging.warning("Failed while getting git information from api")
-        return {}
-    except StopIteration:
-        logging.info(
-            "Repo does not exists or user does not have access to git information."
-        )
-        return {}
+
+def _get_status(*, api_token, api_host, _nbrepopath):
+    """_nbrepopath: path of the repo root folder in the notebook file system"""
+    return requests.get(
+        f"{api_host}/api/2.0/workspace/get-status",
+        headers={"Authorization": f"Bearer {api_token}"},
+        json={"path": _nbrepopath},
+    ).json()
+
+
+def _get_repo(*, api_token, api_host, repo_id):
+    return requests.get(
+        f"{api_host}/api/2.0/repos/{repo_id}",
+        headers={"Authorization": f"Bearer {api_token}"},
+    ).json()
