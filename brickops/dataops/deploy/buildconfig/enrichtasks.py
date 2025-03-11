@@ -55,9 +55,6 @@ def enrich_tasks(job_config: JobConfig, db_context: DbContext) -> JobConfig:
             task["existing_cluster_id"] = lookup_cluster_id(
                 db_context=db_context, cluster_name=existing_cluster_name
             )
-        elif "existing_cluster_id" not in task:
-            msg = "No cluster references found"
-            raise ValueError(msg)
 
     # Get list of clusters used by tasks
     return add_clusters(job_config=job_config, used_clusters=used_clusters)

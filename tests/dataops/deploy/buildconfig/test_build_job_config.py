@@ -8,6 +8,14 @@ from brickops.dataops.deploy.buildconfig.job_config import JobConfig, defaultcon
 from brickops.dataops.deploy.readconfig import read_config_yaml
 
 
+GIT_SOURCE = {
+    "git_url": "git_url",
+    "git_branch": "git_branch",
+    "git_commit": "abcdefgh123",
+    "git_path": "/Repos/test@vlfk.no/dp-notebooks/",
+}
+
+
 @pytest.fixture
 def basic_config() -> dict[str, Any]:
     return {
@@ -17,12 +25,19 @@ def basic_config() -> dict[str, Any]:
                 "job_cluster_key": "common-job-cluster",
             }
         ],
-        "git_source": {
-            "git_url": "git_url",
-            "git_branch": "git_branch",
-            "git_commit": "abcdefgh123",
-            "git_path": "/Repos/test@vlfk.no/dp-notebooks/",
-        },
+        "git_source": GIT_SOURCE,
+    }
+
+
+@pytest.fixture
+def nocluster_config() -> dict[str, Any]:
+    return {
+        "tasks": [
+            {
+                "task_key": "task_key",
+            }
+        ],
+        "git_source": GIT_SOURCE,
     }
 
 
@@ -133,6 +148,15 @@ def test_that_cluster_is_set_correct_in_job_config(
             "job_cluster_key": "common-job-cluster",
         }
     ]
+
+
+def test_that_no_cluster_is_set_correct_in_job_config(
+    nocluster_config: dict[str, Any], db_context: DbContext
+) -> None:
+    db_context.username = "service_principal"
+    db_context.is_service_principal = True
+    result = build_job_config(nocluster_config, env="test", db_context=db_context)
+    assert result.job_clusters == []
 
 
 def test_that_values_from_yaml_is_set_correct_in_job_config(

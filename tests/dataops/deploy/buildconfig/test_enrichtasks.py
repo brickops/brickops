@@ -73,22 +73,6 @@ def databricks_context_data() -> DbContext:
     )
 
 
-def test_that_enriching_with_no_cluster_yields_error(
-    databricks_context_data: DbContext,
-    basic_config: JobConfig,
-) -> None:
-    basic_config.tasks = [
-        {
-            "task_key": "task_key",
-        }
-    ]
-    with pytest.raises(ValueError):
-        enrich_tasks(
-            job_config=basic_config,
-            db_context=databricks_context_data,
-        )
-
-
 def test_that_specifying_serverless_returns_config_without_cluster(
     serverless_config: JobConfig, databricks_context_data: DbContext
 ) -> None:
