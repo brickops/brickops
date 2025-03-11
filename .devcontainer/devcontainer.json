@@ -5,10 +5,14 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
 
+    // Since Github does not allow use of ssh keys across users, many have custom configs in known_hosts, mount it so the dev container understands what to do
+    "mounts": [
+    "source=${env:HOME}/.ssh/known_hosts,target=/root/.ssh/known_hosts,type=bind,readonly"
+    ],
+
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-      	"ghcr.io/va-h/devcontainers-features/uv:1" : {
-            "version": "1.1.14"
+      	"ghcr.io/va-h/devcontainers-features/uv:latest" : {
         }
     },
 
