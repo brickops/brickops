@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 
 from brickops.databricks.context import DbContext
-from brickops.dataops.deploy.buildconfig.enrichtasks import enrich_tasks
-from brickops.dataops.deploy.buildconfig.job_config import JobConfig, defaultconfig
+from brickops.dataops.deploy.job.buildconfig.enrichtasks import enrich_tasks
+from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaultconfig
 
 
 @pytest.fixture

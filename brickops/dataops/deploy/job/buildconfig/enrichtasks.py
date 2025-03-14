@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from brickops.databricks.context import DbContext
-from brickops.dataops.deploy.buildconfig.clusters import add_clusters, lookup_cluster_id
-from brickops.dataops.deploy.buildconfig.job_config import JobConfig
+from brickops.dataops.deploy.job.buildconfig.clusters import add_clusters, lookup_cluster_id
+from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig
 from brickops.dataops.deploy.nbpath import nbrelfolder
 
 

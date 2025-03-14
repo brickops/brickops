@@ -3,8 +3,8 @@ from typing import Any
 import pytest
 
 from brickops.databricks.context import DbContext
-from brickops.dataops.deploy.buildconfig.build import build_job_config
-from brickops.dataops.deploy.buildconfig.job_config import JobConfig, defaultconfig
+from brickops.dataops.deploy.job.buildconfig.build import build_job_config
+from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaultconfig
 from brickops.dataops.deploy.readconfig import read_config_yaml
 
 
@@ -150,7 +150,7 @@ def test_that_values_from_yaml_is_set_correct_in_job_config(
     db_context: DbContext,
 ) -> None:
     config_from_yaml = read_config_yaml(
-        "tests/dataops/deploy/buildconfig/deployment.yml"
+        "tests/dataops/deploy/job/buildconfig/deployment.yml"
     )
     config_from_yaml["git_source"] = {
         "git_url": "git_url",

@@ -3,7 +3,7 @@ from typing import Any
 
 from brickops.databricks import api
 from brickops.databricks.context import DbContext
-from brickops.dataops.deploy.buildconfig.job_config import JobConfig
+from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig
 
 logger = logging.getLogger(__name__)
 

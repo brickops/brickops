@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING, Any
 
 from brickops.databricks import api
 from brickops.databricks.context import DbContext, current_env, get_context
-from brickops.dataops.deploy.buildconfig import build_job_config
+from brickops.dataops.deploy.job.buildconfig import build_job_config
 from brickops.dataops.deploy.readconfig import read_config_yaml
 from brickops.dataops.deploy.repo import git_source
 
 if TYPE_CHECKING:
-    from brickops.dataops.deploy.buildconfig.job_config import JobConfig
+    from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig
 
 logger = logging.getLogger(__name__)
 

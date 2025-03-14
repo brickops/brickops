@@ -3,8 +3,8 @@ from typing import Any
 from brickops.databricks.context import DbContext
 from brickops.databricks.username import get_username
 from brickops.datamesh.parsepath import extract_jobprefix_from_path
-from brickops.dataops.deploy.buildconfig.enrichtasks import enrich_tasks
-from brickops.dataops.deploy.buildconfig.job_config import JobConfig, defaultconfig
+from brickops.dataops.deploy.job.buildconfig.enrichtasks import enrich_tasks
+from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaultconfig
 from brickops.gitutils import clean_branch, commit_shortref
 
 
