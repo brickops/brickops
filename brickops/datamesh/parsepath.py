@@ -37,7 +37,7 @@ def extract_jobprefix_from_path(path: str) -> str:
     return _extract_name_from_path(levels=levels, parsed_path=parsed_path)
 
 
-def _extract_name_from_path(levels: list[str], parsed_path: ParsedPath) -> str:
+def _extract_name_from_path(levels: list[str], parsed_path: ParsedPath | None) -> str:
     """Derive name from repo data mesh structure.
 
     By default we simply use domain as base catalog name.
@@ -122,19 +122,19 @@ def _mesh_levels(levels_str: str) -> list[str]:
     return levels
 
 
-def _env_mesh_catalog_levels():
+def _env_mesh_catalog_levels() -> str:
     return os.environ.get("BRICKOPS_MESH_CATALOG_LEVELS", "domain")
 
 
-def _env_mesh_jobprefix_levels():
+def _env_mesh_jobprefix_levels() -> str:
     return os.environ.get("BRICKOPS_MESH_JOBPREFIX_LEVELS", "domain,project,flow")
 
 
-def _has_catalog_org():
+def _has_catalog_org() -> bool:
     levels = _mesh_catalog_levels()
     return levels[0] == "org"
 
 
-def _has_jobprefix_org():
+def _has_jobprefix_org() -> bool:
     levels = _mesh_jobprefix_levels()
     return levels[0] == "org"
