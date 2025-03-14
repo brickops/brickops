@@ -106,7 +106,7 @@ def test_that_job_name_is_correct_when_in_prod_env(
 
 
 def test_that_job_name_is_correct_when_in_prod_env_w_org(
-    basic_config: dict[str, Any], db_context: DbContext, monkeypatch
+    basic_config: dict[str, Any], db_context: DbContext, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("BRICKOPS_MESH_JOBPREFIX_LEVELS", "org,domain,project,flow")
     db_context.username = "service_principal"
