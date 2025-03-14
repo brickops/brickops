@@ -3,11 +3,11 @@ from brickops.databricks.context import DbContext
 from brickops.datamesh.naming import (
     build_table_name,
     dbname,
-    extract_catname_from_path,
 )
 from brickops.datamesh.parsepath import (
     _parse_path,
     ParsedPath,
+    extract_catname_from_path,
 )
 
 
@@ -35,7 +35,7 @@ def test_that_starting_with_valid_path_returns_correct_catalog_name(
 
 
 def test_that_starting_with_valid_path_returns_correct_catalog_name_w_org(
-    valid_org_path: str, monkeypatch
+    valid_org_path: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("BRICKOPS_MESH_CATALOG_LEVELS", "org,domain,project")
     assert extract_catname_from_path(valid_org_path) == "acme_sanntid_testproject"
