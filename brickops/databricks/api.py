@@ -125,7 +125,7 @@ class ApiClient:
         return self.get(stub=f"permissions/jobs/{job_id}", version="2.0")
 
     def delete_table(self: ApiClient, full_name: str) -> dict[str, Any]:
-        return self.delete(f"unity-catalog/tables/{full_name}")  # type: ignore [no-any-return]
+        return self.delete(f"unity-catalog/tables/{full_name}")
 
     def run_now(self: ApiClient, job_id: str) -> dict[str, Any]:
         logging.info(f"Running job: {job_id}")
