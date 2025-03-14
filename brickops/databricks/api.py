@@ -61,16 +61,12 @@ class ApiClient:
             "Content-Type": "application/json",
         }
 
-    def get_existing_job_id(self: ApiClient, job_name: str) -> str | None:
-        jobs = self.get_jobs()
-        for job in jobs:
-            if job["settings"]["name"] == job_name:
-                return job["job_id"]  # type: ignore [no-any-return]
-        return None
-
-    def get_job_by_name(self: ApiClient, job_name: str) -> dict[str, Any]:
+    def get_job_by_name(self: ApiClient, job_name: str) -> dict[str, Any] | None:
         result = self.get("jobs/list", params={"name": job_name})
-        return result["jobs"][0]  # type: ignore [no-any-return]
+        jobs: list[dict[str, Any]] = result.get("jobs", [])
+        if jobs is None or len(jobs) == 0:
+            return None
+        return jobs[0]
 
     def get_jobs(self: ApiClient) -> list[dict[str, Any]]:
         result = self.get("jobs/list", version="2.2")
@@ -94,11 +90,14 @@ class ApiClient:
         )
 
     def get_volumes(self: ApiClient, catalog: str, schema: str) -> list[dict[str, Any]]:
-        return self.get("unity-catalog/volumes", params={"catalog_name": catalog, "schema_name":schema}).get("volumes", [])
+        return self.get(
+            "unity-catalog/volumes",
+            params={"catalog_name": catalog, "schema_name": schema},
+        ).get("volumes", [])
 
     def delete_schema(self: ApiClient, full_name: str) -> dict[str, Any]:
         return self.delete(f"unity-catalog/schemas/{full_name}")
-    
+
     def delete_volume(self: ApiClient, full_name: str) -> dict[str, Any]:
         return self.delete(f"unity-catalog/volumes/{full_name}")
 
@@ -174,7 +173,7 @@ class ApiClient:
         folders_response = self.get(
             "repos", version="2.0", params={"path_prefix": "/Users"}
         )
-        return repos_response.get("repos", []) + folders_response.get("repos", []) # type: ignore [no-any-return]
+        return repos_response.get("repos", []) + folders_response.get("repos", [])  # type: ignore [no-any-return]
 
     def unpack_response(self: ApiClient, response: requests.Response) -> dict[str, Any]:
         response.raise_for_status()

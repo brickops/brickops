@@ -52,9 +52,9 @@ def create_or_update_job(
     db_context: DbContext, job_config: JobConfig
 ) -> dict[str, Any]:
     api_client = api.ApiClient(db_context.api_url, db_context.api_token)
-    if job_id := api_client.get_existing_job_id(job_name=job_config.name):
+    if job := api_client.get_job_by_name(job_name=job_config.name):
         return api_client.update(
-            job_id=job_id, job_name=job_config.name, job_config=job_config.dict()
+            job_id=job["job_id"], job_name=job_config.name, job_config=job_config.dict()
         )
 
     return api_client.create(
