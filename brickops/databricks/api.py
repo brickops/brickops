@@ -73,7 +73,14 @@ class ApiClient:
         return result["jobs"][0]  # type: ignore [no-any-return]
 
     def get_jobs(self: ApiClient) -> list[dict[str, Any]]:
-        return self.get("jobs/list").get("jobs", [])  # type: ignore [no-any-return]
+        result = self.get("jobs/list", version="2.2")
+        job_list: list[dict[str, Any]] = result.get("jobs", [])
+        while next_page_token := result.get("next_page_token"):
+            result = self.get(
+                "jobs/list", version="2.2", params={"page_token": next_page_token}
+            )
+            job_list.extend(result.get("jobs", []))
+        return job_list
 
     def delete_job(self: ApiClient, job_id: str) -> dict[str, Any]:
         return self.post("jobs/delete", payload={"job_id": job_id})
