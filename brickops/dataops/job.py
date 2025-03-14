@@ -15,11 +15,14 @@ def run_job_by_name(
     """Run a databricks job by name."""
     db_context = get_context(dbutils)
     job = job_by_name(db_context, job_name=job_name)
+    if not job:
+        raise ValueError(f"Job {job_name} not found.")
+
     job_id = job["job_id"]
     return run_job(db_context, job_id=job_id)
 
 
-def job_by_name(db_context: DbContext, job_name: str) -> dict[str, Any]:
+def job_by_name(db_context: DbContext, job_name: str) -> dict[str, Any] | None:
     """Get job by name."""
     api_client = ApiClient(db_context.api_url, db_context.api_token)
     return api_client.get_job_by_name(job_name=job_name)
