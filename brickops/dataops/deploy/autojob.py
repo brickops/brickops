@@ -13,6 +13,8 @@ from brickops.dataops.deploy.repo import git_source
 if TYPE_CHECKING:
     from brickops.dataops.deploy.buildconfig.job_config import JobConfig
 
+logger = logging.getLogger(__name__)
+
 
 def autojob(
     cfgyaml: str = "deployment.yml",
@@ -38,13 +40,13 @@ def autojob(
         env=env,
         db_context=db_context,
     )
-    logging.info(
+    logger.info(
         "\njob_config:\n" + json.dumps(job_config.dict(), sort_keys=True, indent=4)
     )
 
     response = create_or_update_job(db_context, job_config)
 
-    logging.info("Job deploy finished.")
+    logger.info("Job deploy finished.")
     return {"job_name": job_config.name, "response": response}
 
 

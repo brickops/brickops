@@ -8,6 +8,8 @@ from brickops.databricks import api
 if TYPE_CHECKING:
     from brickops.databricks.context import DbContext
 
+logger = logging.getLogger(__name__)
+
 
 def git_source(db_context: DbContext) -> dict[str, Any]:
     """Get git source information for a repo."""
@@ -26,10 +28,10 @@ def git_source(db_context: DbContext) -> dict[str, Any]:
             "git_path": repo["path"],
         }
     except api.ApiClientError:
-        logging.warning("Failed while getting git information from api")
+        logger.warning("Failed while getting git information from api")
         return {}
     except StopIteration:
-        logging.info(
+        logger.info(
             "Repo does not exists or user does not have access to git information."
         )
         return {}

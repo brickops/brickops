@@ -5,6 +5,8 @@ from brickops.databricks import api
 from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.buildconfig.job_config import JobConfig
 
+logger = logging.getLogger(__name__)
+
 
 def add_clusters(job_config: JobConfig, used_clusters: dict[str, Any]) -> JobConfig:
     """Add clusters used by tasks as job_clusters entry in job config."""
@@ -29,7 +31,7 @@ def lookup_cluster_id(*, db_context: DbContext, cluster_name: str) -> dict[str, 
 
 
 def _cluster(*, template_key: str, key: str) -> dict[str, Any]:
-    logging.info(f"template_key: {template_key}, key: {key}")
+    logger.info(f"template_key: {template_key}, key: {key}")
     templates = cluster_templates()
     cluster = templates[template_key]
     cluster["job_cluster_key"] = key

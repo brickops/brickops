@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 from functools import wraps
 
+logger = logging.getLogger(__name__)
+
 
 # This provides a common error handling decorator for the API client methods.
 # The nested decorator pattern is used to allow the error_handling decorator to
@@ -33,7 +35,7 @@ def error_handling(
                 msg = f"Api error while making {method} call:"
                 if err.response is not None:
                     msg += f" {err.response.text}"
-                logging.error(msg)
+                logger.error(msg)
 
                 raise ApiClientError(message=msg) from err
 
@@ -140,20 +142,20 @@ class ApiClient:
         return self.delete(f"unity-catalog/tables/{full_name}")
 
     def run_now(self: ApiClient, job_id: str) -> dict[str, Any]:
-        logging.info(f"Running job: {job_id}")
+        logger.info(f"Running job: {job_id}")
         return self.post("jobs/run-now", payload={"job_id": job_id})
 
     def update(
         self: ApiClient, *, job_id: str, job_name: str, job_config: dict[str, Any]
     ) -> dict[str, Any]:
-        logging.info(f"Resetting job: {job_name}")
+        logger.info(f"Resetting job: {job_name}")
         data = {"job_id": job_id, "new_settings": job_config}
         return self.post("jobs/reset", payload=data)
 
     def create(
         self: ApiClient, job_name: str, job_config: dict[str, Any]
     ) -> dict[str, Any]:
-        logging.info(f"Creating job: {job_name}")
+        logger.info(f"Creating job: {job_name}")
         return self.post("jobs/create", payload=job_config)
 
     def get_clusters(self: ApiClient) -> list[dict[str, Any]]:
@@ -178,7 +180,7 @@ class ApiClient:
     def unpack_response(self: ApiClient, response: requests.Response) -> dict[str, Any]:
         response.raise_for_status()
         response_json = response.json()
-        logging.debug(f"Api response: {response_json}")
+        logger.debug(f"Api response: {response_json}")
         return response_json  # type: ignore [no-any-return]
 
     def build_url(self: ApiClient, stub: str, version: str = "2.1") -> str:
@@ -193,7 +195,7 @@ class ApiClient:
             msg = f"Api error while making {method} call:"
             if err.response is not None:
                 msg += f" {err.response.text}"
-            logging.error(msg)
+            logger.error(msg)
 
             raise ApiClientError(message=msg) from err
 

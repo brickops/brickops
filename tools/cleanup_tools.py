@@ -5,6 +5,8 @@ from src.databricks.api import ApiClient
 from src.databricks.context import get_context
 from src.databricks.username import get_username
 
+logger = logging.getLogger(__name__)
+
 
 class Job(NamedTuple):
     """Represents a job in Databricks."""
@@ -33,7 +35,7 @@ def get_jobs(api_client: ApiClient) -> list[Job]:
 
 def delete_jobs(api_client: ApiClient, jobs: list[Job]) -> None:
     for job in jobs:
-        logging.info(f"Deleting job '{job.name}' with job_id={job.id}")
+        logger.info(f"Deleting job '{job.name}' with job_id={job.id}")
         api_client.delete_job(job.id)
 
 
@@ -60,22 +62,24 @@ def get_tables_for_schema(api_client: ApiClient, full_name: str) -> list[str]:
     catalog, schema = full_name.split(".")
     return [tbl["full_name"] for tbl in api_client.get_tables(catalog, schema)]
 
+
 def get_volumes_for_schema(api_client: ApiClient, full_name: str) -> list[str]:
     """Find full name of all volumes in a schema."""
     catalog, schema = full_name.split(".")
     return [volume["full_name"] for volume in api_client.get_volumes(catalog, schema)]
 
+
 def delete_schema(api_client: ApiClient, full_name: str) -> None:
     """Delete a schema including all tables and volumes in it."""
     if tables := get_tables_for_schema(api_client, full_name):
         for table in tables:
-            logging.info(f"Deleting {table}")
+            logger.info(f"Deleting {table}")
             api_client.delete_table(table)
 
     if volumes := get_volumes_for_schema(api_client, full_name):
         for volume in volumes:
-            logging.info(f"Deleting volume: {volume}")
+            logger.info(f"Deleting volume: {volume}")
             api_client.delete_volume(volume)
 
-    logging.info(f"Deleting schema={full_name}")
+    logger.info(f"Deleting schema={full_name}")
     api_client.delete_schema(full_name)

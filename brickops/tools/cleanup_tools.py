@@ -5,6 +5,8 @@ from brickops.databricks.api import ApiClient
 from brickops.databricks.context import get_context
 from brickops.databricks.username import get_username
 
+logger = logging.getLogger(__name__)
+
 
 class Job(NamedTuple):
     """Represents a job in Databricks."""
@@ -33,7 +35,7 @@ def get_jobs(api_client: ApiClient) -> list[Job]:
 
 def delete_jobs(api_client: ApiClient, jobs: list[Job]) -> None:
     for job in jobs:
-        logging.info(f"Deleting job '{job.name}' with job_id={job.id}")
+        logger.info(f"Deleting job '{job.name}' with job_id={job.id}")
         api_client.delete_job(job.id)
 
 
@@ -65,7 +67,7 @@ def delete_schema(api_client: ApiClient, full_name: str) -> None:
     """Delete a schema including all tables in it."""
     if tables := get_tables_for_schema(api_client, full_name):
         for table in tables:
-            logging.info(f"Deleting {table}")
+            logger.info(f"Deleting {table}")
             api_client.delete_table(table)
-    logging.info(f"Deleting schema={full_name}")
+    logger.info(f"Deleting schema={full_name}")
     api_client.delete_schema(full_name)

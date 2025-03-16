@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ParsedPath:
@@ -74,11 +76,9 @@ def _parse_path(path: str, has_org: bool) -> ParsedPath | None:
     if re_ret is None:
         return None
 
-    print("parsepath.py:" + repr(70) + ":re_ret:" + repr(list(re_ret.groups())))
-
     expected_levels = 5 if has_org else 4
     if len(re_ret.groups()) < expected_levels:  # noqa: PLR2004
-        logging.warning(
+        logger.warning(
             """_parse_catalog_path: unexpected number of groups for full mesh.
             Is the notebook in the correct folder!?"""
         )
