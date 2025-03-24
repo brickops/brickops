@@ -31,4 +31,4 @@ def job_by_name(db_context: DbContext, job_name: str) -> dict[str, Any] | None:
 def run_job(db_context: DbContext, job_id: str) -> dict[str, Any]:
     """Run job by job_id."""
     api_client = ApiClient(db_context.api_url, db_context.api_token)
-    return api_client.run_now(job_id=job_id)
+    return api_client.run_job_now(job_id=job_id)

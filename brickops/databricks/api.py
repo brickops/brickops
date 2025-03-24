@@ -83,6 +83,35 @@ class ApiClient:
     def delete_job(self: ApiClient, job_id: str) -> dict[str, Any]:
         return self.post("jobs/delete", payload={"job_id": job_id})
 
+    def get_pipeline_by_name(
+        self: ApiClient, pipeline_name: str
+    ) -> dict[str, Any] | None:
+        result = self.get(
+            "pipelines",
+            # equals is not supported, so use strict like
+            params={"filter": f"name like '{pipeline_name}%'"},
+        )
+
+        pipelines: list[dict[str, Any]] = result.get("statuses", [])
+        if pipelines is None or len(pipelines) == 0:
+            return None
+        return pipelines[0]
+
+    def get_pipelines(self: ApiClient) -> list[dict[str, Any]]:
+        result = self.get("pipelines", version="2.2")
+        pipeline_list: list[dict[str, Any]] = result.get("statuses", [])
+        while next_page_token := result.get("next_page_token"):
+            result = self.get(
+                "pipelines/list", version="2.2", params={"page_token": next_page_token}
+            )
+            pipeline_list.extend(result.get("statues", []))
+        return pipeline_list
+
+    def delete_pipeline(self: ApiClient, pipeline_id: str) -> dict[str, Any]:
+        return self.delete(
+            "pipelines", payload={"pipeline_id": pipeline_id}, version="2.0"
+        )
+
     def get_catalogs(self: ApiClient) -> list[dict[str, Any]]:
         return self.get("unity-catalog/catalogs").get("catalogs", [])  # type: ignore [no-any-return]
 
@@ -138,25 +167,51 @@ class ApiClient:
     def get_job_permissions(self: ApiClient, job_id: str) -> dict[str, Any]:
         return self.get(stub=f"permissions/jobs/{job_id}", version="2.0")
 
+    def get_pipeline_permissions(self: ApiClient, pipeline_id: str) -> dict[str, Any]:
+        return self.get(stub=f"permissions/pipelines/{pipeline_id}", version="2.0")
+
     def delete_table(self: ApiClient, full_name: str) -> dict[str, Any]:
         return self.delete(f"unity-catalog/tables/{full_name}")
 
-    def run_now(self: ApiClient, job_id: str) -> dict[str, Any]:
+    def run_job_now(self: ApiClient, job_id: str) -> dict[str, Any]:
         logger.info(f"Running job: {job_id}")
         return self.post("jobs/run-now", payload={"job_id": job_id})
 
-    def update(
+    def run_pipeline_now(self: ApiClient, pipeline_id: str) -> dict[str, Any]:
+        logger.info(f"Running pipeline: {pipeline_id}")
+        return self.post(
+            f"pipelines/{pipeline_id}/updates", payload={"full_refresh": True}
+        )
+
+    def update_job(
         self: ApiClient, *, job_id: str, job_name: str, job_config: dict[str, Any]
     ) -> dict[str, Any]:
         logger.info(f"Resetting job: {job_name}")
         data = {"job_id": job_id, "new_settings": job_config}
         return self.post("jobs/reset", payload=data)
 
-    def create(
+    def update_pipeline(
+        self: ApiClient,
+        *,
+        pipeline_id: str,
+        pipeline_name: str,
+        pipeline_config: dict[str, Any],
+    ) -> dict[str, Any]:
+        logger.info(f"Resetting pipeline: {pipeline_name}")
+        data = {"pipeline_id": pipeline_id, "new_settings": pipeline_config}
+        return self.put(f"pipelines/{pipeline_id}", payload=data)
+
+    def create_job(
         self: ApiClient, job_name: str, job_config: dict[str, Any]
     ) -> dict[str, Any]:
         logger.info(f"Creating job: {job_name}")
         return self.post("jobs/create", payload=job_config)
+
+    def create_pipeline(
+        self: ApiClient, pipeline_name: str, pipeline_config: dict[str, Any]
+    ) -> dict[str, Any]:
+        logger.info(f"Creating pipeline: {pipeline_name}")
+        return self.post("pipelines", payload=pipeline_config)
 
     def get_clusters(self: ApiClient) -> list[dict[str, Any]]:
         response = self.get("clusters/list")
