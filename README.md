@@ -98,7 +98,7 @@ Output in prod environment:
 transport.revenue.revenue_by_borough
 ``````
 
-In dev, the database name is prefixed with username, branch and commit ref. The automatic prefixes prevents notebooks running in development mode from overwriting production data.
+In dev (and all environments except prod), the database name is prefixed with username, branch and commit ref. The automatic prefixes prevents notebooks running in development mode from overwriting production data.
 
 ## Deployment functions
 
