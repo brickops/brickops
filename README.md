@@ -12,7 +12,7 @@ Table of contents:
 - [Deployment functions](#deployment-functions)
   - [Auto-deploying a spark pipeline](#auto-deploying-a-spark-pipeline)
 - [Getting started](#getting-started)
-- [How to get into devcontainer](#how-to-get-into-devcontainer)
+- [How to get into devcontainer from the command line](#how-to-get-into-devcontainer-from-the-command-line)
 - [Configuration options for naming and mesh levels](#configuration-options-for-naming-and-mesh-levels)
 - [Underlying philosophy](#underlying-philosophy)
 
@@ -125,7 +125,10 @@ In production, the job name created will be:
 The automatic prefixes in dev prevents development jobs from overwriting production jobs.
 
 ## Getting started
-This project uses [uv](https://docs.astral.sh/uv/), to begin, follow the installation instructions for your platform on the project homepage.
+This project uses [uv](https://docs.astral.sh/uv/). It might be easies to use the devcontainer,
+defined in `.devcontainer`, which is supported by VSCode and other toos.
+
+If you want a local install, follow the installation instructions for your platform on the project homepage.
 
 Next, make sure you are in the project root and run the following command in the terminal:
 
@@ -141,7 +144,7 @@ You can now run the tests with
 uv run pytest
 ```
 
-## How to get into devcontainer
+## How to get into devcontainer from command line
 
 ```
 make start-devcontainer
