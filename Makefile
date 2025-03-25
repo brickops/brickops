@@ -29,3 +29,6 @@ precommit-checks:
 
 ruff:
 	uv run ruff check --output-format=github .
+
+mypy:
+	uv run mypy --strict .
