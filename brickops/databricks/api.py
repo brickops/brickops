@@ -90,6 +90,7 @@ class ApiClient:
             "pipelines",
             # equals is not supported, so use strict like
             params={"filter": f"name like '{pipeline_name}%'"},
+            version="2.0",
         )
 
         pipelines: list[dict[str, Any]] = result.get("statuses", [])
