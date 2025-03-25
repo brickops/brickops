@@ -70,6 +70,7 @@ def test_that_default_config_converts_correctly_to_dict() -> None:
 DEV_EXPECTED_CONFIG = {
     "name": "test_project_flow_test_TestUser_gitbranch_abcdefgh",
     "edition": "ADVANCED",
+    "catalog": "test",
     "data_sampling": False,
     "pipeline_type": "WORKSPACE",
     "development": True,

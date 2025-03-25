@@ -13,6 +13,7 @@ def enrich_tasks(
     # Set target catalog
     cat = escape_sql_name(extract_catname_from_path(db_context.notebook_path))
     db = new_pipeline.pop("db")
+    pipeline_config.catalog = cat
     # Set target database/schema
     pipeline_key = new_pipeline["pipeline_key"]
     pipeline_config.schema = dbname(
