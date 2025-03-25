@@ -26,3 +26,6 @@ devcontainer-shell:
 
 precommit-checks:
 	uv run pre-commit run --all-files
+
+ruff:
+	uv run ruff check --output-format=github .
