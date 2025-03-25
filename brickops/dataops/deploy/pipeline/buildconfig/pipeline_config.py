@@ -59,6 +59,6 @@ def defaultconfig() -> PipelineConfig:
         pipeline_tasks=[],
         schedule=None,
         policy_name="dlt_default_policy",
-        run_as={},
+        run_as=None,
         git_source={},
     )

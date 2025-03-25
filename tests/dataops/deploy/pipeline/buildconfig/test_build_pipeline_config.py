@@ -57,7 +57,6 @@ DEV_EXPECTED_DEFAULT_CONFIG = {
     "policy_name": "dlt_default_policy",
     "tags": {},
     "git_source": {},
-    "run_as": {},
     "pipeline_tasks": [],
 }
 
@@ -66,16 +65,6 @@ def test_that_default_config_converts_correctly_to_dict() -> None:
     pipeline_config = defaultconfig()
     as_dict = pipeline_config.dict()
     assert as_dict == DEV_EXPECTED_DEFAULT_CONFIG
-    # assert as_dict == {
-    #     "name": "",
-    #     "git_source": {},
-    #     "pipeline_clusters": [],
-    #     "max_concurrent_runs": 1,
-    #     "parameters": [],
-    #     "run_as": {},
-    #     "tags": {},
-    #     "tasks": [],
-    # }
 
 
 DEV_EXPECTED_CONFIG = {
@@ -114,9 +103,6 @@ DEV_EXPECTED_CONFIG = {
         },
     ],
     "policy_name": "dlt_default_policy",
-    "run_as": {
-        "user_name": "TestUser@vlfk.no",
-    },
     "schema": "TestUser_gitbranch_abcdefgh_dltrevenue",
     "tags": {
         "deployment": "test_TestUser_gitbranch_abcdefgh",
@@ -149,7 +135,7 @@ def test_that_build_pipeline_sets_correct_run_as(
     db_context: DbContext,
 ) -> None:
     result = build_pipeline_config(basic_config, "test", db_context)
-    assert result.run_as == {"user_name": "TestUser@vlfk.no"}
+    assert result.run_as is None
 
 
 def test_that_tags_are_set_correctly(
@@ -171,9 +157,7 @@ def test_that_service_prinical_is_set_when_running_as_sp(
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     result = build_pipeline_config(basic_config, "test", db_context)
-    assert result.run_as == {
-        "service_principal_name": "service_principal",
-    }
+    assert result.run_as is None
 
 
 def test_that_pipeline_name_is_correct_when_in_prod_env(
