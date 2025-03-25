@@ -43,7 +43,7 @@ def build_pipeline_config(
     tags = _tags(cfg=cfg, depname=dep_name, pipeline_env=env)
     full_cfg.tags = tags
     full_cfg.parameters.extend(build_context_parameters(env, tags))
-    full_cfg = enrich_tasks(pipeline_config=full_cfg, db_context=db_context)
+    full_cfg = enrich_tasks(pipeline_config=full_cfg, db_context=db_context, env=env)
     # Unset git source since not used by pipeline API
     full_cfg.git_source = None
 

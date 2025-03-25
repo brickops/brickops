@@ -45,7 +45,7 @@ def autopipeline(
         + json.dumps(pipeline_config.dict(), sort_keys=True, indent=4)
     )
 
-    response = create_or_update_pipeline(db_context, pipeline_config)
+    response = create_or_update_pipeline(db_context, pipeline_config, env=env)
 
     logging.info("Pipeline deploy finished.")
     return {"pipeline_name": pipeline_config.name, "response": response}

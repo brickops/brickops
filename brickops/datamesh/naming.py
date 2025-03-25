@@ -54,7 +54,11 @@ build_table_name = tablename
 
 
 def dbname(
-    db: str, cat: str, db_context: DbContext | None = None, prepend_cat: bool = True
+    db: str,
+    cat: str,
+    db_context: DbContext | None = None,
+    prepend_cat: bool = True,
+    env: str | None = None,
 ) -> str:
     """Generate a database name from db, cat, env."""
     if not db:
@@ -62,7 +66,8 @@ def dbname(
         raise ValueError(msg)
     if not db_context:
         db_context = get_context()
-    env = current_env(db_context)
+    if not env:
+        env = current_env(db_context)
     db_prefix = dbprefix(env=env, db_context=db_context)
     db_only = f"{db_prefix}{db}"
     name = db_only

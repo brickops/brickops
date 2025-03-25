@@ -6,7 +6,7 @@ from brickops.datamesh.naming import extract_catname_from_path, escape_sql_name,
 
 
 def enrich_tasks(
-    pipeline_config: PipelineConfig, db_context: DbContext
+    pipeline_config: PipelineConfig, db_context: DbContext, env: str
 ) -> PipelineConfig:
     new_pipeline = pipeline_config.pipeline_tasks[0]
     pipeline_config.pipeline_tasks = None
@@ -17,9 +17,8 @@ def enrich_tasks(
     # Set target database/schema
     pipeline_key = new_pipeline["pipeline_key"]
     pipeline_config.schema = dbname(
-        cat=cat, db=db, db_context=db_context, prepend_cat=False
+        cat=cat, db=db, db_context=db_context, prepend_cat=False, env=env
     )
-    env = current_env(db_context)
     # Set development mode for all envs except prod
     pipeline_config.development = env != "prod"
     # For now, dlt does not support gitrefs, so we must use absolute path
