@@ -29,8 +29,8 @@ def autojob(
     if not env:
         env = current_env(db_context)
 
-    if env not in ("test", "prod"):
-        msg = f"env must be 'test' or 'prod', not {env}"
+    if env not in ("test", "dev", "prod"):
+        msg = f"env must be 'test', 'dev' or 'prod', not {env}"
         raise ValueError(msg)
 
     cfg = read_config_yaml(cfgyaml)

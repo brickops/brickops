@@ -10,12 +10,12 @@ from brickops.gitutils import clean_branch, commit_shortref
 
 def depname(*, db_context: DbContext, env: str, git_src: dict[str, Any]) -> str:
     """Compose deployment name from env and git config."""
-    if env == "test":
-        uname = get_username(db_context)
-        branch = clean_branch(git_src["git_branch"])
-        short_ref = commit_shortref(git_src["git_commit"])
-        return f"{env}_{uname}_{branch}_{short_ref}"
-    return "prod"
+    if env == "prod":
+        return "prod"
+    uname = get_username(db_context)
+    branch = clean_branch(git_src["git_branch"])
+    short_ref = commit_shortref(git_src["git_commit"])
+    return f"{env}_{uname}_{branch}_{short_ref}"
 
 
 def jobname(db_context: DbContext, depname: str) -> str:

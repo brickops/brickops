@@ -29,8 +29,8 @@ def autopipeline(
     if not env:
         env = current_env(db_context)
 
-    if env not in ("test", "prod"):
-        msg = f"env must be 'test' or 'prod', not {env}"
+    if env not in ("test", "dev", "prod"):
+        msg = f"env must be 'test', 'dev' or 'prod', not {env}"
         raise ValueError(msg)
 
     cfg = read_config_yaml(cfgyaml)
@@ -55,11 +55,9 @@ def create_or_update_pipeline(
     db_context: DbContext, pipeline_config: PipelineConfig
 ) -> dict[str, Any]:
     api_client = api.ApiClient(db_context.api_url, db_context.api_token)
-    if pipeline_id := api_client.get_existing_pipeline_id(
-        pipeline_name=pipeline_config.name
-    ):
+    if pipeline := api_client.get_pipeline_by_name(pipeline_name=pipeline_config.name):
         return api_client.update_pipeline(
-            pipeline_id=pipeline_id,
+            pipeline_id=pipeline["pipeline_id"],
             pipeline_name=pipeline_config.name,
             pipeline_config=pipeline_config.dict(),
         )
