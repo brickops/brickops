@@ -1,6 +1,6 @@
 import os.path
 
-from brickops.databricks.context import DbContext, current_env
+from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.pipeline.buildconfig.pipeline_config import PipelineConfig
 from brickops.datamesh.naming import extract_catname_from_path, escape_sql_name, dbname
 
