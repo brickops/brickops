@@ -88,9 +88,9 @@ class ApiClient:
     ) -> dict[str, Any] | None:
         result = self.get(
             "pipelines",
+            version="2.0",
             # equals is not supported, so use strict like
             params={"filter": f"name like '{pipeline_name}%'"},
-            version="2.0",
         )
 
         pipelines: list[dict[str, Any]] = result.get("statuses", [])
@@ -99,13 +99,13 @@ class ApiClient:
         return pipelines[0]
 
     def get_pipelines(self: ApiClient) -> list[dict[str, Any]]:
-        result = self.get("pipelines", version="2.2")
+        result = self.get("pipelines", version="2.0")
         pipeline_list: list[dict[str, Any]] = result.get("statuses", [])
         while next_page_token := result.get("next_page_token"):
             result = self.get(
-                "pipelines/list", version="2.2", params={"page_token": next_page_token}
+                "pipelines/list", version="2.0", params={"page_token": next_page_token}
             )
-            pipeline_list.extend(result.get("statues", []))
+            pipeline_list.extend(result.get("statuses", []))
         return pipeline_list
 
     def delete_pipeline(self: ApiClient, pipeline_id: str) -> dict[str, Any]:
@@ -181,7 +181,9 @@ class ApiClient:
     def run_pipeline_now(self: ApiClient, pipeline_id: str) -> dict[str, Any]:
         logger.info(f"Running pipeline: {pipeline_id}")
         return self.post(
-            f"pipelines/{pipeline_id}/updates", payload={"full_refresh": True}
+            f"pipelines/{pipeline_id}/updates",
+            payload={"full_refresh": True},
+            version="2.0",
         )
 
     def update_job(
@@ -200,7 +202,7 @@ class ApiClient:
     ) -> dict[str, Any]:
         logger.info(f"Resetting pipeline: {pipeline_name}")
         data = {"pipeline_id": pipeline_id, "new_settings": pipeline_config}
-        return self.put(f"pipelines/{pipeline_id}", payload=data)
+        return self.put(f"pipelines/{pipeline_id}", version="2.0", payload=data)
 
     def create_job(
         self: ApiClient, job_name: str, job_config: dict[str, Any]
@@ -212,7 +214,7 @@ class ApiClient:
         self: ApiClient, pipeline_name: str, pipeline_config: dict[str, Any]
     ) -> dict[str, Any]:
         logger.info(f"Creating pipeline: {pipeline_name}")
-        return self.post("pipelines", payload=pipeline_config)
+        return self.post("pipelines", payload=pipeline_config, version="2.0")
 
     def get_clusters(self: ApiClient) -> list[dict[str, Any]]:
         response = self.get("clusters/list")
