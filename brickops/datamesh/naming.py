@@ -26,7 +26,7 @@ def escape_norwegian_chars(name: str) -> str:
     return f"`{name}`" if any((c in norwegian_chars) for c in name) else name
 
 
-def build_table_name(
+def tablename(
     tbl: str,
     db: str,
     cat: str | None = None,
@@ -47,6 +47,10 @@ def build_table_name(
 
     db_name = dbname(db=db, cat=cat, db_context=db_context)
     return escape_sql_name(f"{db_name}.{tbl}")
+
+
+# Alias for tablename, to avoid breaking legacy code
+build_table_name = tablename
 
 
 def dbname(
