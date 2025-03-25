@@ -18,9 +18,11 @@ class PipelineConfig:
     pipeline_type: str
     libraries: list[str]
     serverless: bool
+    development: list[dict[bool, Any]] | None
     tags: dict[str, Any]
     parameters: list[dict[str, Any]]
     pipeline_tasks: list[dict[str, Any]] | None
+    schedule: dict[str, Any] | None
     policy_name: str
     run_as: dict[str, Any] | None
     git_source: dict[str, Any] | None
@@ -55,6 +57,7 @@ def defaultconfig() -> PipelineConfig:
         tags={},
         parameters=[],
         pipeline_tasks=[],
+        schedule=None,
         policy_name="dlt_default_policy",
         run_as={},
         git_source={},
