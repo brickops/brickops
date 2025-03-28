@@ -109,9 +109,7 @@ class ApiClient:
         return pipeline_list
 
     def delete_pipeline(self: ApiClient, pipeline_id: str) -> dict[str, Any]:
-        return self.delete(
-            "pipelines", payload={"pipeline_id": pipeline_id}, version="2.0"
-        )
+        return self.post("pipelines/delete", payload={"pipeline_id": pipeline_id})
 
     def get_catalogs(self: ApiClient) -> list[dict[str, Any]]:
         return self.get("unity-catalog/catalogs").get("catalogs", [])  # type: ignore [no-any-return]
@@ -121,7 +119,9 @@ class ApiClient:
             "schemas", []
         )
 
-    def get_volumes(self: ApiClient, catalog: str, schema: str) -> list[dict[str, Any]]:
+    def get_volumes(
+        self: ApiClient, catalog: str, schema: str
+    ) -> list[dict[str, Any]] | Any:
         return self.get(
             "unity-catalog/volumes",
             params={"catalog_name": catalog, "schema_name": schema},

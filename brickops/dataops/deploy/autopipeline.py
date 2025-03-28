@@ -42,10 +42,10 @@ def autopipeline(
     )
     logging.info(
         "\npipeline_config:\n"
-        + json.dumps(pipeline_config.dict(), sort_keys=True, indent=4)
+        + json.dumps(pipeline_config.export_dict(), sort_keys=True, indent=4)
     )
 
-    response = create_or_update_pipeline(db_context, pipeline_config, env=env)
+    response = create_or_update_pipeline(db_context, pipeline_config)
 
     logging.info("Pipeline deploy finished.")
     return {"pipeline_name": pipeline_config.name, "response": response}
@@ -59,10 +59,10 @@ def create_or_update_pipeline(
         return api_client.update_pipeline(
             pipeline_id=pipeline["pipeline_id"],
             pipeline_name=pipeline_config.name,
-            pipeline_config=pipeline_config.dict(),
+            pipeline_config=pipeline_config.export_dict(),
         )
 
     return api_client.create_pipeline(
         pipeline_name=pipeline_config.name,
-        pipeline_config=pipeline_config.dict(),
+        pipeline_config=pipeline_config.export_dict(),
     )

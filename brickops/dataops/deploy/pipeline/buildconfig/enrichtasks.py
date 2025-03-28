@@ -2,14 +2,14 @@ import os.path
 
 from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.pipeline.buildconfig.pipeline_config import PipelineConfig
-from brickops.datamesh.naming import extract_catname_from_path, escape_sql_name, dbname
+from brickops.datamesh.naming import escape_sql_name, dbname
+from brickops.datamesh.parsepath import extract_catname_from_path
 
 
 def enrich_tasks(
     pipeline_config: PipelineConfig, db_context: DbContext, env: str
 ) -> PipelineConfig:
     new_pipeline = pipeline_config.pipeline_tasks[0]
-    pipeline_config.pipeline_tasks = None
     # Set target catalog
     cat = escape_sql_name(extract_catname_from_path(db_context.notebook_path))
     db = new_pipeline.pop("db")

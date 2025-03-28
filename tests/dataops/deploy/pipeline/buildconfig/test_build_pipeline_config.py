@@ -1,5 +1,6 @@
 from typing import Any
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 
 from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.readconfig import read_config_yaml
@@ -54,16 +55,13 @@ DEV_EXPECTED_DEFAULT_CONFIG = {
     "libraries": [],
     "serverless": True,
     "parameters": [],
-    "policy_name": "dlt_default_policy",
     "tags": {},
-    "git_source": {},
-    "pipeline_tasks": [],
 }
 
 
 def test_that_default_config_converts_correctly_to_dict() -> None:
     pipeline_config = defaultconfig()
-    as_dict = pipeline_config.dict()
+    as_dict = pipeline_config.export_dict()
     assert as_dict == DEV_EXPECTED_DEFAULT_CONFIG
 
 
@@ -103,7 +101,6 @@ DEV_EXPECTED_CONFIG = {
             "name": "git_commit",
         },
     ],
-    "policy_name": "dlt_default_policy",
     "schema": "TestUser_gitbranch_abcdefgh_dltrevenue",
     "tags": {
         "deployment": "test_TestUser_gitbranch_abcdefgh",
@@ -128,7 +125,7 @@ def test_that_build_pipeline_config_returns_expected_result_for_valid_config(
     db_context: DbContext,
 ) -> None:
     result = build_pipeline_config(basic_config, "test", db_context)
-    assert result.dict() == DEV_EXPECTED_CONFIG
+    assert result.export_dict() == DEV_EXPECTED_CONFIG
 
 
 def test_that_build_pipeline_sets_correct_run_as(
@@ -171,7 +168,7 @@ def test_that_pipeline_name_is_correct_when_in_prod_env(
 
 
 def test_that_pipeline_name_is_correct_when_in_prod_env_w_org(
-    basic_config: dict[str, Any], db_context: DbContext, monkeypatch
+    basic_config: dict[str, Any], db_context: DbContext, monkeypatch: MonkeyPatch
 ) -> None:
     monkeypatch.setenv("BRICKOPS_MESH_PIPELINEPREFIX_LEVELS", "org,domain,project,flow")
     db_context.username = "service_principal"

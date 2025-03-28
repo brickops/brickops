@@ -34,9 +34,6 @@ def build_pipeline_config(
 ) -> PipelineConfig:
     """Combine custom parameters with default parameters, and default cluster config."""
     full_cfg = defaultconfig()
-    if env != "prod":
-        full_cfg.email_notifications = {}
-
     full_cfg.update(cfg)
     dep_name = depname(db_context=db_context, env=env, git_src=full_cfg.git_source)
     full_cfg.name = pipelinename(db_context, depname=dep_name)
@@ -44,19 +41,6 @@ def build_pipeline_config(
     full_cfg.tags = tags
     full_cfg.parameters.extend(build_context_parameters(env, tags))
     full_cfg = enrich_tasks(pipeline_config=full_cfg, db_context=db_context, env=env)
-    # Unset git source since not used by pipeline API
-    full_cfg.git_source = None
-
-    # run_as is not supported by pipeline API
-    # if db_context.is_service_principal:
-    #     full_cfg.run_as = {"service_principal_name": db_context.username}
-    # else:  # if we have a service principal, we need to use the correct config
-    #     full_cfg.run_as = {
-    #         "user_name": db_context.username,
-    #     }
-    # Unset run_as, since not supported by pipeline API
-    full_cfg.run_as = None
-
     return full_cfg
 
 

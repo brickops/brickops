@@ -8,24 +8,23 @@ class PipelineConfig:
 
     name: str
     edition: str
-    catalog: dict[str, Any] | None
-    development: dict[str, Any]
-    schema: dict[str, Any] | None
+    catalog: str | None
+    schema: str | None
     data_sampling: bool
     continuous: bool
-    channel: dict[str, Any] | None
+    channel: str | None
     photon: bool
     pipeline_type: str
-    libraries: list[str]
+    libraries: list[dict[str, dict[str, str]]]
     serverless: bool
-    development: list[dict[bool, Any]] | None
+    development: bool | None
     tags: dict[str, Any]
     parameters: list[dict[str, Any]]
-    pipeline_tasks: list[dict[str, Any]] | None
+    pipeline_tasks: list[dict[str, Any]]
     schedule: dict[str, Any] | None
     policy_name: str
     run_as: dict[str, Any] | None
-    git_source: dict[str, Any] | None
+    git_source: dict[str, Any]
 
     def update(self, cfg: dict[str, Any]) -> None:
         """Update the pipeline configuration with the given configuration."""
@@ -33,10 +32,18 @@ class PipelineConfig:
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def dict(self) -> dict[str, str]:
-        # we skip None values to avoid sending them to the API
+    def export_dict(self) -> dict[str, str]:
+        """Export the pipeline configuration to a dictionary for the API call.
+        We avoid intermediate parameters like pipeline_tasks, which
+        are converted to another format.
+        We also skip None values to avoid sending them to the API."""
+        # policy_name possible causes CHANGES_UC_PIPELINE_TO_HMS_NOT_ALLOWED on update
+        INTERMEDIATE_PARAMS = {"pipeline_tasks", "git_source", "run_as", "policy_name"}
         return asdict(
-            self, dict_factory=lambda x: {k: v for (k, v) in x if v is not None}
+            self,
+            dict_factory=lambda x: {
+                k: v for (k, v) in x if v is not None and k not in INTERMEDIATE_PARAMS
+            },
         )
 
 
