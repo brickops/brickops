@@ -1,6 +1,6 @@
 pipeline_tasks:
   - pipeline_key: revenue
-    db: dltrevenue
+schema: dltrevenue
 schedule:
   quartz_cron_expression: 0 0 20 * * ? # every day at 20:00
   timezone_id: Europe/Brussels

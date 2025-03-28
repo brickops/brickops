@@ -17,9 +17,9 @@ def basic_config() -> dict[str, Any]:
         "pipeline_tasks": [
             {
                 "pipeline_key": "revenue",
-                "db": "dltrevenue",
             }
         ],
+        "schema": "dltrevenue",
         "git_source": {
             "git_url": "git_url",
             "git_branch": "git_branch",

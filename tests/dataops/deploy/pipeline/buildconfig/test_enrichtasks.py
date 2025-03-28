@@ -16,9 +16,9 @@ def basic_config() -> PipelineConfig:
     pipeline_config.pipeline_tasks = [
         {
             "pipeline_key": "revenue",
-            "db": "dltrevenue",
         }
     ]
+    pipeline_config.schema = "dltrevenue"
     pipeline_config.git_source = {"git_path": "test"}
     return pipeline_config
 
@@ -40,9 +40,9 @@ def test_default_config(
     basic_config.pipeline_tasks = [
         {
             "pipeline_key": "revenue",
-            "db": "dltrevenue",
         }
     ]
+    basic_config.schema = "dltrevenue"
     result = enrich_tasks(
         pipeline_config=basic_config,
         db_context=databricks_context_data,
@@ -75,7 +75,7 @@ def test_default_config_test_env(
     basic_config.pipeline_tasks = [
         {
             "pipeline_key": "revenue",
-            "db": "dltrevenue",
+            "schema": "dltrevenue",
         }
     ]
     result = enrich_tasks(
