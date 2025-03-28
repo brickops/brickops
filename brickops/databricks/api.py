@@ -201,9 +201,10 @@ class ApiClient:
         pipeline_config: dict[str, Any],
     ) -> dict[str, Any]:
         logger.info(f"Resetting pipeline: {pipeline_name}")
-        data = {"pipeline_id": pipeline_id, "new_settings": pipeline_config}
         try:
-            return self.put(f"pipelines/{pipeline_id}", version="2.0", payload=data)
+            return self.put(
+                f"pipelines/{pipeline_id}", version="2.0", payload=pipeline_config
+            )
         except ApiClientError as e:
             logger.error(
                 "update_pipeline() ApiClientError:pipeline_config:"
