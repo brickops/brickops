@@ -205,10 +205,6 @@ class ApiClient:
         try:
             return self.put(f"pipelines/{pipeline_id}", version="2.0", payload=data)
         except ApiClientError as e:
-            print(
-                "update_pipeline() ApiClientError:pipeline_config:"
-                + repr(pipeline_config)
-            )
             logger.error(
                 "update_pipeline() ApiClientError:pipeline_config:"
                 + repr(pipeline_config)
