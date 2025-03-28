@@ -202,7 +202,14 @@ class ApiClient:
     ) -> dict[str, Any]:
         logger.info(f"Resetting pipeline: {pipeline_name}")
         data = {"pipeline_id": pipeline_id, "new_settings": pipeline_config}
-        return self.put(f"pipelines/{pipeline_id}", version="2.0", payload=data)
+        try:
+            return self.put(f"pipelines/{pipeline_id}", version="2.0", payload=data)
+        except ApiClientError as e:
+            logger.error(
+                "update_pipeline() ApiClientError:pipeline_config:"
+                + repr(pipeline_config)
+            )
+            raise e
 
     def create_job(
         self: ApiClient, job_name: str, job_config: dict[str, Any]
@@ -214,7 +221,14 @@ class ApiClient:
         self: ApiClient, pipeline_name: str, pipeline_config: dict[str, Any]
     ) -> dict[str, Any]:
         logger.info(f"Creating pipeline: {pipeline_name}")
-        return self.post("pipelines", payload=pipeline_config, version="2.0")
+        try:
+            return self.post("pipelines", payload=pipeline_config, version="2.0")
+        except ApiClientError as e:
+            logger.error(
+                "create_pipeline() ApiClientError:pipeline_config:"
+                + repr(pipeline_config)
+            )
+            raise e
 
     def get_clusters(self: ApiClient) -> list[dict[str, Any]]:
         response = self.get("clusters/list")
