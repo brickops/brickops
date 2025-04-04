@@ -2,7 +2,7 @@ from typing import Any
 
 from brickops.databricks.context import DbContext
 from brickops.databricks.username import get_username
-from brickops.datamesh.parsepath import extract_jobprefix_from_path
+from brickops.datamesh.naming import jobname
 from brickops.dataops.deploy.job.buildconfig.enrichtasks import enrich_tasks
 from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaultconfig
 from brickops.gitutils import clean_branch, commit_shortref
@@ -18,12 +18,6 @@ def depname(*, db_context: DbContext, env: str, git_src: dict[str, Any]) -> str:
     return f"{env}_{uname}_{branch}_{short_ref}"
 
 
-def jobname(db_context: DbContext, depname: str) -> str:
-    _nbpath = db_context.notebook_path
-    jobprefix = extract_jobprefix_from_path(_nbpath)
-    return f"{jobprefix}_{depname}"
-
-
 def build_job_config(
     cfg: dict[str, Any],
     env: str,
@@ -35,8 +29,8 @@ def build_job_config(
         full_cfg.email_notifications = {}
 
     full_cfg.update(cfg)
+    full_cfg.name = jobname(db_context, env=env)
     dep_name = depname(db_context=db_context, env=env, git_src=full_cfg.git_source)
-    full_cfg.name = jobname(db_context, depname=dep_name)
     tags = _tags(cfg=cfg, depname=dep_name)
     full_cfg.tags = tags
     full_cfg.parameters.extend(build_context_parameters(env, tags))
