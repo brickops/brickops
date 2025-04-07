@@ -153,19 +153,18 @@ make devcontainer-shell
 
 ## Configuration options for naming and mesh levels
 
+Naming of resources (catalogs, db/schemas, jobs, pipelines) can be configured in a file called .brickopscfg/config.yaml
+in the root of tour repo. example configurations can be found here:
+
+tests/datamesh/fixtured.
+
 Mesh levels refers here to the granularity/depth of the repo structure, e.g. organization,domain,project,flow
 
-Default prefixing of data sets are:
+The defaults are:
 
-```
-    return os.environ.get("BRICKOPS_MESH_CATALOG_LEVELS", "domain")
-
+* "{domain}" for catalog
 ...
-
-    return os.environ.get("BRICKOPS_MESH_JOBPREFIX_LEVELS", "domain,project,flow")
-```
-
-You can override with the env vars above.
+TODO: finish docs here...
 
 For catalogs this means the domain section of a path is used, for jobs a combination of domain,project,flow.
 You can also specify org, if wanted. Example:
