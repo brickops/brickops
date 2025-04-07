@@ -34,7 +34,7 @@ def db_context() -> DbContext:
     return DbContext(
         api_token="token",  # noqa: S106
         api_url="",
-        notebook_path="/Repos/test@vlfk.no/dp-notebooks/domains/test/projects/project/flows/flow/testflow",
+        notebook_path="/Repos/test@vlfk.no/dp-notebooks/domains/domainfoo/projects/projectfoo/flows/prep/flowfoo",
         username="TestUser@vlfk.no",
         widgets={
             "git_url": "git_url",
@@ -59,16 +59,16 @@ DEV_EXPECTED_DEFAULT_CONFIG = {
 }
 
 
-def test_that_default_config_converts_correctly_to_dict() -> None:
+def test_default_config_converts_correctly_to_dict() -> None:
     pipeline_config = defaultconfig()
     as_dict = pipeline_config.export_dict()
     assert as_dict == DEV_EXPECTED_DEFAULT_CONFIG
 
 
 DEV_EXPECTED_CONFIG = {
-    "name": "test_project_flow_test_TestUser_gitbranch_abcdefgh",
+    "name": "domainfoo_projectfoo_test_TestUser_gitbranch_abcdefgh_dlt",
     "edition": "ADVANCED",
-    "catalog": "test",
+    "catalog": "domainfoo",
     "data_sampling": False,
     "pipeline_type": "WORKSPACE",
     "development": True,
@@ -78,7 +78,7 @@ DEV_EXPECTED_CONFIG = {
     "libraries": [
         {
             "notebook": {
-                "path": "/Repos/test@vlfk.no/dp-notebooks/domains/test/projects/project/flows/flow/revenue"
+                "path": "/Repos/test@vlfk.no/dp-notebooks/domains/domainfoo/projects/projectfoo/flows/prep/revenue"
             }
         }
     ],
@@ -101,7 +101,7 @@ DEV_EXPECTED_CONFIG = {
             "name": "git_commit",
         },
     ],
-    "schema": "TestUser_gitbranch_abcdefgh_dltrevenue",
+    "schema": "test_TestUser_gitbranch_abcdefgh_dltrevenue",
     "tags": {
         "deployment": "test_TestUser_gitbranch_abcdefgh",
         "git_branch": "git_branch",
@@ -112,7 +112,7 @@ DEV_EXPECTED_CONFIG = {
 }
 
 
-def test_that_build_pipeline_config_returns_valid_result_for_valid_config(
+def test_build_pipeline_config_returns_valid_result_for_valid_config(
     basic_config: dict[str, Any],
     db_context: DbContext,
 ) -> None:
@@ -120,7 +120,7 @@ def test_that_build_pipeline_config_returns_valid_result_for_valid_config(
     assert isinstance(result, PipelineConfig)
 
 
-def test_that_build_pipeline_config_returns_expected_result_for_valid_config(
+def test_build_pipeline_config_returns_expected_result_for_valid_config(
     basic_config: dict[str, Any],
     db_context: DbContext,
 ) -> None:
@@ -128,7 +128,7 @@ def test_that_build_pipeline_config_returns_expected_result_for_valid_config(
     assert result.export_dict() == DEV_EXPECTED_CONFIG
 
 
-def test_that_build_pipeline_sets_correct_run_as(
+def test_build_pipeline_sets_correct_run_as(
     basic_config: dict[str, Any],
     db_context: DbContext,
 ) -> None:
@@ -136,7 +136,7 @@ def test_that_build_pipeline_sets_correct_run_as(
     assert result.run_as is None
 
 
-def test_that_tags_are_set_correctly(
+def test_tags_are_set_correctly(
     basic_config: dict[str, Any], db_context: DbContext
 ) -> None:
     result = build_pipeline_config(basic_config, "test", db_context)
@@ -149,7 +149,7 @@ def test_that_tags_are_set_correctly(
     }
 
 
-def test_that_service_prinical_is_set_when_running_as_sp(
+def test_service_prinical_is_set_when_running_as_sp(
     basic_config: dict[str, Any], db_context: DbContext
 ) -> None:
     db_context.username = "service_principal"
@@ -158,27 +158,28 @@ def test_that_service_prinical_is_set_when_running_as_sp(
     assert result.run_as is None
 
 
-def test_that_pipeline_name_is_correct_when_in_prod_env(
+def test_pipeline_name_is_correct_when_in_prod_env(
     basic_config: dict[str, Any], db_context: DbContext
 ) -> None:
     db_context.username = "service_principal"
     db_context.is_service_principal = True
+    db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/domains/domainfoo/projects/projectfoo/flows/flowfoo/task_key"
     result = build_pipeline_config(basic_config, env="prod", db_context=db_context)
-    assert result.name == "test_project_flow_prod"
+    assert result.name == "domainfoo_projectfoo_prod_dlt"
 
 
-def test_that_pipeline_name_is_correct_when_in_prod_env_w_org(
+def test_pipeline_name_is_correct_when_in_prod_env_w_org(
     basic_config: dict[str, Any], db_context: DbContext, monkeypatch: MonkeyPatch
 ) -> None:
     monkeypatch.setenv("BRICKOPS_MESH_PIPELINEPREFIX_LEVELS", "org,domain,project,flow")
     db_context.username = "service_principal"
     db_context.is_service_principal = True
-    db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/org/acme/domains/test/projects/project/flows/flow/task_key"
+    db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/org/acme/domains/domainfoo/projects/projectfoo/flows/flowfoo/task_key"
     result = build_pipeline_config(basic_config, env="prod", db_context=db_context)
-    assert result.name == "test_project_flow_prod"
+    assert result.name == "domainfoo_projectfoo_prod_dlt"
 
 
-def test_that_values_from_yaml_is_set_correct_in_pipeline_config(
+def test_values_from_yaml_is_set_correct_in_pipeline_config(
     db_context: DbContext,
 ) -> None:
     config_from_yaml = read_config_yaml(

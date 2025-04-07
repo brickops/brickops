@@ -2,7 +2,7 @@ from typing import Any
 
 from brickops.databricks.context import DbContext
 from brickops.databricks.username import get_username
-from brickops.datamesh.parsepath import extract_jobprefix_from_path
+from brickops.datamesh.naming import pipelinename
 from brickops.dataops.deploy.pipeline.buildconfig.enrichtasks import enrich_tasks
 from brickops.dataops.deploy.pipeline.buildconfig.pipeline_config import (
     PipelineConfig,
@@ -21,12 +21,6 @@ def depname(*, db_context: DbContext, env: str, git_src: dict[str, Any]) -> str:
     return f"{env}_{uname}_{branch}_{short_ref}"
 
 
-def pipelinename(db_context: DbContext, depname: str) -> str:
-    _nbpath = db_context.notebook_path
-    pipelineprefix = extract_jobprefix_from_path(_nbpath)
-    return f"{pipelineprefix}_{depname}"
-
-
 def build_pipeline_config(
     cfg: dict[str, Any],
     env: str,
@@ -35,8 +29,8 @@ def build_pipeline_config(
     """Combine custom parameters with default parameters, and default cluster config."""
     full_cfg = defaultconfig()
     full_cfg.update(cfg)
+    full_cfg.name = pipelinename(db_context, env=env)
     dep_name = depname(db_context=db_context, env=env, git_src=full_cfg.git_source)
-    full_cfg.name = pipelinename(db_context, depname=dep_name)
     tags = _tags(cfg=cfg, depname=dep_name, pipeline_env=env)
     full_cfg.tags = tags
     full_cfg.parameters.extend(build_context_parameters(env, tags))

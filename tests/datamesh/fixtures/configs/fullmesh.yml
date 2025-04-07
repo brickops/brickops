@@ -1,0 +1,13 @@
+naming:
+  job:
+    prod: "{org}_{domain}_{project}_{env}"
+    other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitref}"
+  pipeline:
+    prod: "{org}_{domain}_{project}_{env}_dlt"
+    other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitref}_dlt"
+  catalog:
+    prod: "{org}_{domain}_{project}_{env}"
+    other: "{org}_{domain}_{project}_{env}"
+  db:
+    prod: "{db}"
+    other: "{env}_{username}_{gitbranch}_{gitref}_{db}"

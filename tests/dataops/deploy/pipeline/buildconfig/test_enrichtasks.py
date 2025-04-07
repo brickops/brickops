@@ -33,7 +33,18 @@ def databricks_context_data() -> DbContext:
     )
 
 
-def test_default_config(
+GIT_SOURCE = {
+    "git_url": "test",
+    "git_provider": "github",
+    "git_branch": "testbranch",
+    "git_commit": "fffffhhhh",
+    "git_path": "test/notebook_path",
+}
+
+
+@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
+def test_default_config_prod_env(
+    _: Any,
     databricks_context_data: DbContext,
     basic_config: PipelineConfig,
 ) -> None:
@@ -55,15 +66,6 @@ def test_default_config(
             }
         }
     ]
-
-
-GIT_SOURCE = {
-    "git_url": "test",
-    "git_provider": "github",
-    "git_branch": "testbranch",
-    "git_commit": "fffffhhhh",
-    "git_path": "test/notebook_path",
-}
 
 
 @mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
