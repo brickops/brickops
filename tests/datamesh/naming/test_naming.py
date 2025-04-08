@@ -1,5 +1,6 @@
 import pytest
 
+from unittest import mock
 from brickops.databricks.context import DbContext
 from brickops.datamesh.naming import (
     dbname,
@@ -26,6 +27,18 @@ def db_context() -> DbContext:
     )
 
 
+@pytest.fixture
+def db_context_empty_widgets_short_path() -> DbContext:
+    return DbContext(
+        api_token="token",  # noqa: S106
+        api_url="",
+        notebook_path="/Users/test@vlfk.no/databricks-dataops-course/course/01-Student-Prep/01-General/1-CreateDatabaseObjects",
+        username="userfoo@vlfk.no",
+        widgets={},
+        is_service_principal=False,
+    )
+
+
 def test_tablename_in_test_contains_user_and_branch(
     db_context: DbContext,
 ) -> None:
@@ -33,8 +46,41 @@ def test_tablename_in_test_contains_user_and_branch(
     result = tablename(
         tbl="test_tbl", db="test_db", cat="training", db_context=db_context
     )
-
     assert result == "training.test_TestUser_featnewbranch_abcdefgh_test_db.test_tbl"
+
+
+GIT_SOURCE = {
+    "git_url": "api_sourced_url",
+    "git_provider": "api_sourced_provider",
+    "git_branch": "apisourcedbranch",
+    "git_commit": "apidefgh",
+    "git_path": "api_sourced_path",
+}
+
+
+@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
+def test_tablename_in_test_with_empty_widgets(
+    _, db_context_empty_widgets_short_path
+) -> None:
+    result = tablename(
+        tbl="tblfoo",
+        db="dbfoo",
+        cat="training",
+        db_context=db_context_empty_widgets_short_path,
+    )
+    assert result == "training.test_userfoo_apisourcedbranch_apidefgh_dbfoo.tblfoo"
+
+
+@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
+def test_dbname_in_test_with_empty_widgets(
+    _, db_context_empty_widgets_short_path
+) -> None:
+    result = dbname(
+        db="dbfoo",
+        cat="training",
+        db_context=db_context_empty_widgets_short_path,
+    )
+    assert result == "training.test_userfoo_apisourcedbranch_apidefgh_dbfoo"
 
 
 def test_tablename_in_test_in_prod_env_from_widget_var_pipeline_env(

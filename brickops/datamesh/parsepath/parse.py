@@ -26,16 +26,31 @@ def parsepath(path: str) -> ParsedPath | None:
         path,
         re.IGNORECASE,
     )
-    if re_ret is None:
-        return None
+    # Some configurations, e.g. where db is only db name + env,
+    # we don't use path (org, domain, project, flow), in which case
+    # we return empty strings
+    non_matching_path = ParsedPath(
+        org="",
+        domain="",
+        project="",
+        flow="",
+    )
 
+    if re_ret is None:
+        logger.info(
+            """_parse_catalog_path: path regexp not matching, could be valid,
+            e.g. for dbname() run outside mesh structure, where mesh names
+            (org, domain, project etc) are not used"""
+        )
+        return non_matching_path
     expected_levels = 5 if has_org else 4
     if len(re_ret.groups()) < expected_levels:  # noqa: PLR2004
-        logger.warning(
-            """_parse_catalog_path: unexpected number of groups for full mesh.
-            Is the notebook in the correct folder!?"""
+        logger.info(
+            """_parse_catalog_path: path regexp not matching, could be valid,
+            e.g. for dbname() run outside mesh structure, where mesh names
+            (org, domain, project etc) are not used"""
         )
-        return None
+        return non_matching_path
 
     if has_org:
         return ParsedPath(
