@@ -65,10 +65,6 @@ def _findconfig() -> str | None:
 
 
 def _read_yaml(config_path: str) -> Any | None:
-    # Check if the config file exists
-    if not os.path.exists(config_path):
-        logger.info(f"Config file not found at {config_path}")
-        return None
     ret = None
     # Read the YAML file
     with open(config_path, "r") as file:

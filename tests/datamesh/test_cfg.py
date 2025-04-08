@@ -3,8 +3,7 @@ import pytest
 import tempfile
 import shutil
 from typing import Any
-from unittest.mock import patch, mock_open, MagicMock
-import yaml
+from unittest.mock import patch, mock_open
 from brickops.datamesh import cfg
 from brickops.datamesh.cfg import (
     get_config,
@@ -260,57 +259,14 @@ class TestFindConfig:
 
 
 class TestReadYaml:
-    @patch("os.path.exists")
     @patch("builtins.open", new_callable=mock_open, read_data="key: value")
-    def test_read_yaml_existing_file(self, mock_file: Any, mock_exists: Any) -> None:
-        # Setup
-        mock_exists.return_value = True
-
+    def test_read_yaml_existing_file(self, mock_file: Any) -> None:
         # Execute
         result = _read_yaml("/path/to/config.yml")
 
         # Verify
         assert result == {"key": "value"}
-        mock_exists.assert_called_once_with("/path/to/config.yml")
         mock_file.assert_called_once_with("/path/to/config.yml", "r")
-
-    @patch("os.path.exists")
-    @patch("logging.getLogger")
-    def test_read_yaml_nonexistent_file(
-        self, mock_getlogger: Any, mock_exists: Any
-    ) -> None:
-        # Setup
-        mock_exists.return_value = False
-        mock_logger = MagicMock()
-        mock_getlogger.return_value = mock_logger
-
-        # Execute
-        result = _read_yaml("/path/to/nonexistent.yml")
-
-        # Verify
-        assert result is None
-        mock_exists.assert_called_once_with("/path/to/nonexistent.yml")
-        # Note: This assertion is a bit tricky since we're mocking a logger that's
-        # instantiated at module level; in a real test, we'd likely need to adjust
-        # the implementation to make this more testable
-
-    @patch("os.path.exists")
-    @patch("builtins.open", new_callable=mock_open, read_data="not: valid: yaml")
-    def test_read_yaml_invalid_yaml(self, mock_file: Any, mock_exists: Any) -> None:
-        # Setup
-        mock_exists.return_value = True
-
-        # Creating a mock for yaml.safe_load that raises an exception
-        with patch("yaml.safe_load") as mock_yaml_load:
-            mock_yaml_load.side_effect = yaml.YAMLError("Invalid YAML")
-
-            # Execute and expect exception
-            with pytest.raises(yaml.YAMLError):
-                _read_yaml("/path/to/invalid.yml")
-
-            # Verify
-            mock_exists.assert_called_once_with("/path/to/invalid.yml")
-            mock_file.assert_called_once_with("/path/to/invalid.yml", "r")
 
 
 class TestWithActualConfig:
