@@ -154,34 +154,50 @@ make devcontainer-shell
 ## Configuration options for naming and mesh levels
 
 Naming of resources (catalogs, db/schemas, jobs, pipelines) can be configured in a file called .brickopscfg/config.yaml
-in the root of tour repo. example configurations can be found here:
+in the root of tour repo. example configurations can be found in [tests/.brickopscfg/config.yml](tests/.brickopscfg/config.yml).
 
-tests/datamesh/fixtured.
+Mesh levels refers here to the granularity/depth of your organization represented in the repo structure, e.g. organization, domain and project.
 
-Mesh levels refers here to the granularity/depth of the repo structure, e.g. organization,domain,project,flow
+An example configuration could be:
 
-The defaults are:
+```
+naming:
+  job:
+    prod: "{domain}_{project}_{env}"
+    other: "{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}"
+  pipeline:
+    prod: "{domain}_{project}_{env}_dlt"
+    other: "{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}_dlt"
+  catalog:
+    prod: "{domain}"
+    other: "{domain}"
+  db:
+    prod: "{db}"
+    other: "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
+```
 
-* "{domain}" for catalog
-...
-TODO: finish docs here...
+Let us now see what resource names would be produced from a notebook located at
+`something/domains/marketing/projects/projectfoo/flows/prep/foo_notebook`.
 
-For catalogs this means the domain section of a path is used, for jobs a combination of domain,project,flow.
-You can also specify org, if wanted. Example:
+For catalogs the configuration above means the domain section of a path is used,
+for jobs a combination of domain, project and env.
 
+The resource names would become:
 
-* In the following notebook: `something/domains/sanntid/projects/testproject/flows/testflow/test_notebook`
-  * By default:
-    * catalog name: `sanntid`
-    * job name: `sanntid_testproject_testflow`
-  * With `BRICKOPS_MESH_CATALOG_LEVELS` = `domain,project`
-    * catalog name: `sanntid_testproject`
-* With org support, in the following notebook: `/Repos/test@foobar.foo/dataplatform/something/org/acme/domains/sanntid/projects/testproject/flows/testflow/test_notebook`
-  * By default:
-    * catalog name: `sanntid`
-    * job name: `sanntid_testproject_testflow`
-  * With `BRICKOPS_MESH_CATALOG_LEVELS` = `org,domain,project`
-    * catalog name: `acme_sanntid_testproject`
+* job name:
+  * prod: `marketing_projectfoo_prod`
+  * dev: `marketing_projectfoo_env_paldevibe_branchname_82e5d310`
+* pipeline name:
+  * prod: `marketing_projectfoo_prod_dlt`
+  * dev: `marketing_projectfoo_env_paldevibe_branchname_82e5d310_dlt`
+* catalog name:
+  * prod: `sales`
+  * dev: `sales`
+* db name for a database/schema called `customers`:
+  * prod: `customers`
+  * dev: `customers_env_paldevibe_branchname_82e5d310`
+
+* With org support, in the following notebook: `/Repos/test@foobar.foo/dataplatform/something/org/acme/domains/sales/projects/projectfoo/flows/testflow/foo_notebook`, a config of `{org}_{domain}_{project}_{env}` would result in `acme_sales_projectfoo_prod` for a production environment.
 
 
 ## Underlying philosophy

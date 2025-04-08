@@ -58,6 +58,7 @@ def _compose_name(
         "gitshortref": pipeline_context.gitshortref,
         resource: resource_name,
     }
+    logger.info("extractname.py:" + repr(61) + ":naming_config:" + repr(naming_config))
     # Replace the variables in the template with actual values
     return naming_config.format(**format_dict)
 

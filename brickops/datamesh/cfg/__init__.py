@@ -25,20 +25,43 @@ def read_config() -> dict[Any, Any] | None:
     if _config_read:
         return _config
     _config_read = True
-    # Find the repository root
-    repo_root = _find_repo_root()
-    if not repo_root:
-        return None
 
     # Define the path to the config file
-    config_path = _config_path(repo_root)
+    config_path = _findconfig()
+    if not config_path:
+        return None
+
     _config = _read_yaml(config_path)
     return _config
 
 
-def _config_path(repo_root: str) -> str:
-    """Construct the path to the config file. Useful to easily mock in tests."""
-    return os.path.join(repo_root, ".brickopscfg", "config.yml")
+def _findconfig() -> str | None:
+    """
+    Look for a .brickopscfg folder in the current directory and each parent
+    directory until reaching the system root or encountering an error.
+    We cannot use .git folder to find root of repo, since it is not available in Databricks.
+
+    Returns:
+        str: The full path to the first .brickopscfg folder found, or None if not found.
+    """
+    current_dir = os.path.abspath(os.getcwd())
+    while True:
+        config_dir = os.path.join(current_dir, ".brickopscfg")
+
+        # Check if .brickopscfg exists and is a directory
+        if os.path.isdir(config_dir):
+            return os.path.join(config_dir, "config.yml")
+
+        # Check if we've reached the root directory
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir:  # We've reached the root
+            return None
+
+        # Move up to the parent directory
+        current_dir = parent_dir
+
+    # This line shouldn't be reached under normal circumstances
+    return None
 
 
 def _read_yaml(config_path: str) -> Any | None:
@@ -51,15 +74,3 @@ def _read_yaml(config_path: str) -> Any | None:
     with open(config_path, "r") as file:
         ret = yaml.safe_load(file)
     return ret
-
-
-def _find_repo_root() -> str | None:
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-
-    while current_dir != os.path.dirname(current_dir):  # Stop at the filesystem root
-        if os.path.isdir(os.path.join(current_dir, ".git")):
-            return current_dir
-        current_dir = os.path.dirname(current_dir)
-
-    logger.info("Repository not found")
-    return None

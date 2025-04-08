@@ -30,17 +30,19 @@ def db_context() -> DbContext:
 
 @pytest.fixture
 def valid_path() -> str:
-    return "something/domains/sanntid/projects/test_project/flows/flowfoo/notebookfoo"
+    return "something/domains/sales/projects/test_project/flows/flowfoo/notebookfoo"
 
 
 @pytest.fixture
 def valid_org_path() -> str:
-    return "something/org/acme/domains/sanntid/projects/testproject/flows/flowfoo/notebookfoo"
+    return "something/org/acme/domains/sales/projects/testproject/flows/flowfoo/notebookfoo"
 
 
 @pytest.fixture
 def explore_path() -> str:
-    return "something/domains/sanntid/projects/test_project/explore/exploration/notebookfoo"
+    return (
+        "something/domains/sales/projects/test_project/explore/exploration/notebookfoo"
+    )
 
 
 def test_starting_with_valid_path_returns_correct_catalog_name(
@@ -48,7 +50,7 @@ def test_starting_with_valid_path_returns_correct_catalog_name(
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_path
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 @mock.patch(
@@ -61,7 +63,7 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_conf(
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_path
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 @mock.patch(
@@ -74,7 +76,7 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_org(
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_org_path
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 @mock.patch(
@@ -87,7 +89,7 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_conf(
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_org_path
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 @mock.patch(
@@ -100,7 +102,7 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_fullmesh_
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_org_path
-    assert catname_from_path(db_context=db_context) == "acme_sanntid_testproject_test"
+    assert catname_from_path(db_context=db_context) == "acme_sales_testproject_test"
 
 
 def test_containing_valid_path_in_prod_returns_correct_catalog_name_without_postfix(
@@ -108,7 +110,7 @@ def test_containing_valid_path_in_prod_returns_correct_catalog_name_without_post
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_path
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 def test_containing_path_without_domain_returns_none(
@@ -125,7 +127,7 @@ def test_env_is_correctly_post_fixed(
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = f"some_prefix/path{valid_path}"
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 def test_catalog_can_be_extracted_for_explore_folders(
@@ -133,14 +135,14 @@ def test_catalog_can_be_extracted_for_explore_folders(
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = f"some_prefix/path{explore_path}"
-    assert catname_from_path(db_context=db_context) == "sanntid"
+    assert catname_from_path(db_context=db_context) == "sales"
 
 
 def test_parsepath_supports_explore_folders() -> None:
     assert parsepath(
-        "/domains/sanntid/projects/test_project/explore/exploration/a_notebook",
+        "/domains/sales/projects/test_project/explore/exploration/a_notebook",
     ) == ParsedPath(
-        domain="sanntid",
+        domain="sales",
         project="test_project",
         flow="exploration",
     )
@@ -148,10 +150,10 @@ def test_parsepath_supports_explore_folders() -> None:
 
 def test_parsepath_supports_explore_folders_w_org() -> None:
     assert parsepath(
-        "/org/acme/domains/sanntid/projects/test_project/explore/exploration/a_notebook",
+        "/org/acme/domains/sales/projects/test_project/explore/exploration/a_notebook",
     ) == ParsedPath(
         org="acme",
-        domain="sanntid",
+        domain="sales",
         project="test_project",
         flow="exploration",
     )

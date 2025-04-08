@@ -107,7 +107,7 @@ def test_that_job_name_is_correct_when_in_prod_env(
 
 
 @mock.patch(
-    "brickops.datamesh.cfg._config_path",
+    "brickops.datamesh.cfg._findconfig",
     return_value=pytest.BRICKOPS_FULLMESH_CONFIG,  # type: ignore[attr-defined]
 )
 def test_that_job_name_is_correct_when_in_prod_env_w_org(
