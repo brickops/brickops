@@ -1,5 +1,6 @@
 import pytest
 
+from typing import Any
 from unittest import mock
 from brickops.databricks.context import DbContext
 from brickops.datamesh.naming import (
@@ -60,7 +61,7 @@ GIT_SOURCE = {
 
 @mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
 def test_tablename_in_test_with_empty_widgets(
-    _, db_context_empty_widgets_short_path
+    _: Any, db_context_empty_widgets_short_path: DbContext
 ) -> None:
     result = tablename(
         tbl="tblfoo",
@@ -73,7 +74,7 @@ def test_tablename_in_test_with_empty_widgets(
 
 @mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
 def test_dbname_in_test_with_empty_widgets(
-    _, db_context_empty_widgets_short_path
+    _: Any, db_context_empty_widgets_short_path: DbContext
 ) -> None:
     result = dbname(
         db="dbfoo",

@@ -40,7 +40,7 @@ def _find_config() -> str | None:
     while str(current_dir) != current_dir.root:
         config_dir = current_dir / ".brickopscfg"
         if config_dir.exists():
-            return config_dir / "config.yml"
+            return str(config_dir / "config.yml")
         current_dir = current_dir.parent
     return None
 
