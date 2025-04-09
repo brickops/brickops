@@ -1,5 +1,5 @@
+import logging
 from typing import Any
-
 from brickops.databricks.context import DbContext
 from brickops.databricks.username import get_username
 from brickops.datamesh.naming import pipelinename
@@ -9,6 +9,9 @@ from brickops.dataops.deploy.pipeline.buildconfig.pipeline_config import (
     defaultconfig,
 )
 from brickops.gitutils import clean_branch, commit_shortref
+
+
+logger = logging.getLogger(__name__)
 
 
 def depname(*, db_context: DbContext, env: str, git_src: dict[str, Any]) -> str:
@@ -34,6 +37,7 @@ def build_pipeline_config(
     tags = _tags(cfg=cfg, depname=dep_name, pipeline_env=env)
     full_cfg.tags = tags
     full_cfg.parameters.extend(build_context_parameters(env, tags))
+    logger.info("full_cfg:" + repr(full_cfg))
     full_cfg = enrich_tasks(pipeline_config=full_cfg, db_context=db_context, env=env)
     return full_cfg
 

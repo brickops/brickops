@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     )
 
 
+logger = logging.getLogger(__name__)
+
+
 def autopipeline(
     cfgyaml: str = "deployment.yml",
     env: str | None = None,
@@ -25,6 +28,7 @@ def autopipeline(
     Pipeline naming and the rest of the configuration is derived from the environment.
     """
     db_context = get_context()
+    logger.info("db_context:" + repr(db_context))
 
     if not env:
         env = current_env(db_context)

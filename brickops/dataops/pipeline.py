@@ -19,16 +19,22 @@ def run_pipeline_by_name(
         raise ValueError(f"Pipeline {pipeline_name} not found.")
 
     pipeline_id = pipeline["pipeline_id"]
-    return run_pipeline(db_context, pipeline_id=pipeline_id)
+    return run_pipeline(pipeline_id=pipeline_id, db_context=db_context)
 
 
-def pipeline_by_name(db_context: DbContext, pipeline_name: str) -> dict[str, Any] | None:
+def pipeline_by_name(
+    db_context: DbContext, pipeline_name: str
+) -> dict[str, Any] | None:
     """Get pipeline by name."""
     api_client = ApiClient(db_context.api_url, db_context.api_token)
     return api_client.get_pipeline_by_name(pipeline_name=pipeline_name)
 
 
-def run_pipeline(db_context: DbContext, pipeline_id: str) -> dict[str, Any]:
+def run_pipeline(
+    pipeline_id: str, db_context: DbContext | None = None
+) -> dict[str, Any]:
     """Run pipeline by pipeline_id."""
+    if not db_context:
+        db_context = get_context()
     api_client = ApiClient(db_context.api_url, db_context.api_token)
     return api_client.run_pipeline_now(pipeline_id=pipeline_id)
