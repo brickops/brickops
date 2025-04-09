@@ -18,7 +18,7 @@ def db_context() -> DbContext:
     return DbContext(
         api_token="token",  # noqa: S106
         api_url="",
-        notebook_path="/Repos/test@vlfk.no/dp-notebooks/domains/test/projects/project/flows/flow/testflow",
+        notebook_path="/Repos/test@vlfk.no/dp-notebooks/domains/test/projects/project/flows/prep/testflow",
         username="TestUser@vlfk.no",
         widgets={
             "git_url": "git_url",
@@ -30,12 +30,14 @@ def db_context() -> DbContext:
 
 @pytest.fixture
 def valid_path() -> str:
-    return "something/domains/sales/projects/test_project/flows/flowfoo/notebookfoo"
+    return "something/domains/sales/projects/test_project/flows/prep/notebookfoo"
 
 
 @pytest.fixture
 def valid_org_path() -> str:
-    return "something/org/acme/domains/sales/projects/testproject/flows/flowfoo/notebookfoo"
+    return (
+        "something/org/acme/domains/sales/projects/testproject/flows/prep/notebookfoo"
+    )
 
 
 @pytest.fixture
@@ -102,7 +104,9 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_fullmesh_
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_org_path
-    assert catname_from_path(db_context=db_context) == "acme_sales_testproject_test"
+    assert (
+        catname_from_path(db_context=db_context) == "acme_sales_testproject_prep_test"
+    )
 
 
 def test_containing_valid_path_in_prod_returns_correct_catalog_name_without_postfix(

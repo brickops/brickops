@@ -6,8 +6,8 @@ naming:
     prod: "{org}_{domain}_{project}_{env}_dlt"
     other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}_dlt"
   catalog:
-    prod: "{org}_{domain}_{project}_{env}"
-    other: "{org}_{domain}_{project}_{env}"
+    prod: "{org}_{domain}_{project}_{flow}_{env}"
+    other: "{org}_{domain}_{project}_{flow}_{env}"
   db:
     prod: "{db}"
     other: "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
