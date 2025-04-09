@@ -36,7 +36,7 @@ def valid_path() -> str:
 @pytest.fixture
 def valid_org_path() -> str:
     return (
-        "something/org/acme/domains/sales/projects/testproject/flows/prep/notebookfoo"
+        "something/orgs/acme/domains/sales/projects/testproject/flows/prep/notebookfoo"
     )
 
 
@@ -154,7 +154,7 @@ def test_parsepath_supports_explore_folders() -> None:
 
 def test_parsepath_supports_explore_folders_w_org() -> None:
     assert parsepath(
-        "/org/acme/domains/sales/projects/test_project/explore/exploration/a_notebook",
+        "/orgs/acme/domains/sales/projects/test_project/explore/exploration/a_notebook",
     ) == ParsedPath(
         org="acme",
         domain="sales",

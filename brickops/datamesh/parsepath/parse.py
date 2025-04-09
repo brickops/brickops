@@ -33,9 +33,9 @@ def parsepath(path: str) -> ParsedPath | None:
 
 def _parsebase(*, path: str, parsed_path: ParsedPath) -> ParsedPath | None:
     """Parse base section of path to extract org, domain, project."""
-    has_org = "/org/" in path
+    has_org = "/orgs/" in path
     if has_org:  # Include org section if required
-        rexp = r".*\/org/([^/]+)\/domains/([^/]+)\/projects\/([^/]+)\/.+"
+        rexp = r".*\/orgs/([^/]+)\/domains/([^/]+)\/projects\/([^/]+)\/.+"
     else:
         rexp = r".*\/domains\/([^/]+)\/projects\/([^/]+)\/.+"
     re_ret = re.search(
