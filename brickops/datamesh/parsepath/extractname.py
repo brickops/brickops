@@ -52,6 +52,8 @@ def _compose_name(
         "org": parsed_path.org if parsed_path.org else "",
         "domain": parsed_path.domain,
         "project": parsed_path.project,
+        "activity": parsed_path.activity if parsed_path.activity else "",
+        "flowtype": parsed_path.flowtype,
         "flow": parsed_path.flow,
         "env": pipeline_context.env,
         "username": pipeline_context.username,

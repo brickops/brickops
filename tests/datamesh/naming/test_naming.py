@@ -179,6 +179,24 @@ def test_dbname_with_norwegian_characters_in_name_results_in_backticked_name(
     assert result == "`en_liten_ø`.test_TestUser_gitbranch_abcdefgh_test_db"
 
 
+@mock.patch(
+    "brickops.datamesh.cfg.read_config",
+    return_value=pytest.BRICKOPS_FULLMESH_CONFIG,  # type: ignore[attr-defined]
+)
+def test_full_branch_name_with_slash_is_stripped_correctly_w_full_mesh(
+    _: Any,
+    db_context: DbContext,
+) -> None:
+    branch_name = "feature/branch"
+    db_context.widgets["git_branch"] = branch_name
+    result = dbname(db_context=db_context, db="test_db", cat="training")
+
+    assert (
+        result
+        == "training.test_TestUser_featurebranch_abcdefgh_flows_prep_flowfoo_test_db"
+    )
+
+
 def test_name_from_path_is_correct_prod(
     db_context: DbContext,
 ) -> None:

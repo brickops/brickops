@@ -8,59 +8,82 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ParsedPath:
-    flow: str
-    project: str
     domain: str
+    project: str
+    flow: str
+    flowtype: str
     org: Optional[str] = None
+    activity: Optional[str] = None
 
 
 def parsepath(path: str) -> ParsedPath | None:
     """Parse path to extract org, domain, project, and flow."""
+    empty_parsed_path = ParsedPath(
+        domain="",
+        project="",
+        flowtype="",
+        flow="",
+    )
+    parsed_path = _parsebase(path=path, parsed_path=empty_parsed_path)
+    if parsed_path is None:
+        return empty_parsed_path
+
+    return _parseflow(path=path, parsed_path=empty_parsed_path)
+
+
+def _parsebase(*, path: str, parsed_path: ParsedPath) -> ParsedPath | None:
+    """Parse base section of path to extract org, domain, project."""
     has_org = "/org/" in path
     if has_org:  # Include org section if required
-        rexp = r".*\/org/([^/]+)\/domains/([^/]+)\/projects\/([^/]+)\/(?:flows|explore(\/ml|\/prep)?)\/([^/]+)\/.+"
+        rexp = r".*\/org/([^/]+)\/domains/([^/]+)\/projects\/([^/]+)\/.+"
     else:
-        rexp = r".*\/domains\/([^/]+)\/projects\/([^/]+)\/(?:flows|explore(\/ml|\/prep)?)\/([^/]+)\/.+"
+        rexp = r".*\/domains\/([^/]+)\/projects\/([^/]+)\/.+"
     re_ret = re.search(
         rexp,
         path,
         re.IGNORECASE,
     )
-    # Some configurations, e.g. where db is only db name + env,
-    # we don't use path (org, domain, project, flow), in which case
-    # we return empty strings
-    non_matching_path = ParsedPath(
-        org="",
-        domain="",
-        project="",
-        flow="",
-    )
-
     if re_ret is None:
         logger.info(
-            """_parse_catalog_path: path regexp not matching, could be valid,
+            """_parsebase: path regexp not matching, could be valid,
             e.g. for dbname() run outside mesh structure, where mesh names
             (org, domain, project etc) are not used"""
         )
-        return non_matching_path
-    expected_levels = 5 if has_org else 4
-    if len(re_ret.groups()) < expected_levels:  # noqa: PLR2004
-        logger.info(
-            """_parse_catalog_path: path regexp not matching, could be valid,
-            e.g. for dbname() run outside mesh structure, where mesh names
-            (org, domain, project etc) are not used"""
-        )
-        return non_matching_path
-
+        return None
     if has_org:
-        return ParsedPath(
-            org=re_ret[1],
-            domain=re_ret[2],
-            project=re_ret[3],
-            flow=re_ret[5],
-        )
-    return ParsedPath(
-        domain=re_ret[1],
-        project=re_ret[2],
-        flow=re_ret[4],
+        parsed_path.org = re_ret[1]
+        parsed_path.domain = re_ret[2]
+        parsed_path.project = re_ret[3]
+    else:
+        parsed_path.domain = re_ret[1]
+        parsed_path.project = re_ret[2]
+    return parsed_path
+
+
+def _parseflow(*, path: str, parsed_path: ParsedPath) -> ParsedPath:
+    """Parse flow section of path to extract activity, flowtype and flow.
+    If only two directory levels are present, assume no activity."""
+    rexp = r".*\/domains\/[^/]+\/projects\/[^/]+\/([^/]+)\/([^/]+)\/([^/]+).*"
+    re_ret = re.search(
+        rexp,
+        path,
+        re.IGNORECASE,
     )
+    if re_ret:
+        parsed_path.activity = re_ret[1]  # E.g. Flow or explore
+        parsed_path.flowtype = re_ret[2]  # E.g prep or ml
+        parsed_path.flow = re_ret[3]  # Name of notebook
+        return parsed_path
+    # missing a level, so assume no flowtype
+    rexp = r".*\/domains\/[^/]+\/projects\/[^/]+\/([^/]+)\/([^/]+).*"
+    re_ret = re.search(
+        rexp,
+        path,
+        re.IGNORECASE,
+    )
+    if re_ret:
+        parsed_path.activity = re_ret[1]  # E.g. Flow or explore
+        parsed_path.flow = re_ret[2]  # Name of notebook
+        return parsed_path
+    logger.info("""_parseflow: no matching explore/flow pattern found""")
+    return parsed_path

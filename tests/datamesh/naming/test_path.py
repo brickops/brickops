@@ -104,9 +104,7 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_fullmesh_
     db_context: DbContext,
 ) -> None:
     db_context.notebook_path = valid_org_path
-    assert (
-        catname_from_path(db_context=db_context) == "acme_sales_testproject_prep_test"
-    )
+    assert catname_from_path(db_context=db_context) == "acme_sales_testproject_test"
 
 
 def test_containing_valid_path_in_prod_returns_correct_catalog_name_without_postfix(
@@ -148,7 +146,9 @@ def test_parsepath_supports_explore_folders() -> None:
     ) == ParsedPath(
         domain="sales",
         project="test_project",
-        flow="exploration",
+        activity="explore",
+        flowtype="exploration",
+        flow="a_notebook",
     )
 
 
@@ -159,5 +159,7 @@ def test_parsepath_supports_explore_folders_w_org() -> None:
         org="acme",
         domain="sales",
         project="test_project",
-        flow="exploration",
+        activity="explore",
+        flowtype="exploration",
+        flow="a_notebook",
     )
