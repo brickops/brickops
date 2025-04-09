@@ -1,8 +1,8 @@
 from typing import Any
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
 
 from brickops.databricks.context import DbContext
+from brickops.datamesh import cfg
 from brickops.dataops.deploy.readconfig import read_config_yaml
 from brickops.dataops.deploy.pipeline.buildconfig.build import build_pipeline_config
 from brickops.dataops.deploy.pipeline.buildconfig.pipeline_config import (
@@ -124,6 +124,7 @@ def test_build_pipeline_config_returns_expected_result_for_valid_config(
     basic_config: dict[str, Any],
     db_context: DbContext,
 ) -> None:
+    cfg.read_config.cache_clear()  # Clear the cache to ensure the config is reloaded
     result = build_pipeline_config(basic_config, "test", db_context)
     assert result.export_dict() == DEV_EXPECTED_CONFIG
 
@@ -161,6 +162,7 @@ def test_service_prinical_is_set_when_running_as_sp(
 def test_pipeline_name_is_correct_when_in_prod_env(
     basic_config: dict[str, Any], db_context: DbContext
 ) -> None:
+    cfg.read_config.cache_clear()  # Clear the cache to ensure the config is reloaded
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/domains/domainfoo/projects/projectfoo/flows/flowfoo/task_key"
@@ -169,9 +171,9 @@ def test_pipeline_name_is_correct_when_in_prod_env(
 
 
 def test_pipeline_name_is_correct_when_in_prod_env_w_org(
-    basic_config: dict[str, Any], db_context: DbContext, monkeypatch: MonkeyPatch
+    basic_config: dict[str, Any], db_context: DbContext
 ) -> None:
-    monkeypatch.setenv("BRICKOPS_MESH_PIPELINEPREFIX_LEVELS", "org,domain,project,flow")
+    cfg.read_config.cache_clear()  # Clear the cache to ensure the config is reloaded
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/org/acme/domains/domainfoo/projects/projectfoo/flows/flowfoo/task_key"

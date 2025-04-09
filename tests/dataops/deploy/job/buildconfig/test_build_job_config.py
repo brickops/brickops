@@ -7,6 +7,7 @@ from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.job.buildconfig.build import build_job_config
 from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaultconfig
 from brickops.dataops.deploy.readconfig import read_config_yaml
+from brickops.datamesh.cfg import read_config
 
 
 @pytest.fixture
@@ -100,6 +101,7 @@ def test_that_service_prinical_is_set__when_running_as_sp(
 def test_that_job_name_is_correct_when_in_prod_env(
     basic_config: dict[str, Any], db_context: DbContext
 ) -> None:
+    read_config.cache_clear()  # Clear the cache to ensure the config is reloaded
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     result = build_job_config(basic_config, env="prod", db_context=db_context)
@@ -107,7 +109,7 @@ def test_that_job_name_is_correct_when_in_prod_env(
 
 
 @mock.patch(
-    "brickops.datamesh.cfg._findconfig",
+    "brickops.datamesh.cfg._find_config",
     return_value=pytest.BRICKOPS_FULLMESH_CONFIG,  # type: ignore[attr-defined]
 )
 def test_that_job_name_is_correct_when_in_prod_env_w_org(

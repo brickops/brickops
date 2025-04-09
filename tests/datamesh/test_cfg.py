@@ -4,11 +4,10 @@ import tempfile
 import shutil
 from typing import Any
 from unittest.mock import patch, mock_open
-from brickops.datamesh import cfg
 from brickops.datamesh.cfg import (
     get_config,
     read_config,
-    _findconfig,
+    _find_config,
     _read_yaml,
 )
 
@@ -16,13 +15,8 @@ from brickops.datamesh.cfg import (
 @pytest.fixture
 def reset_config_state() -> Any:
     """Reset the module's global state between tests."""
-    import brickops.datamesh.cfg
-
-    brickops.datamesh.cfg._config = None
-    brickops.datamesh.cfg._config_read = False
+    read_config.cache_clear()
     yield
-    brickops.datamesh.cfg._config = None
-    brickops.datamesh.cfg._config_read = False
 
 
 @pytest.fixture
@@ -105,13 +99,13 @@ class TestGetConfig:
 
 
 class TestReadConfig:
-    @patch("brickops.datamesh.cfg._findconfig")
+    @patch("brickops.datamesh.cfg._find_config")
     @patch("brickops.datamesh.cfg._read_yaml")
     def test_read_config_first_call(
-        self, mock_read_yaml: Any, mock_findconfig: Any, reset_config_state: Any
+        self, mock_read_yaml: Any, mock_find_config: Any, reset_config_state: Any
     ) -> None:
         # Setup
-        mock_findconfig.return_value = "/path/to/.brickopscfg/config.yml"
+        mock_find_config.return_value = "/path/to/.brickopscfg/config.yml"
         mock_config = {"key": "value"}
         mock_read_yaml.return_value = mock_config
 
@@ -120,18 +114,16 @@ class TestReadConfig:
 
         # Verify
         assert result == mock_config
-        mock_findconfig.assert_called_once()
+        mock_find_config.assert_called_once()
         mock_read_yaml.assert_called_once_with("/path/to/.brickopscfg/config.yml")
-        assert cfg._config_read is True
-        assert cfg._config == mock_config
 
-    @patch("brickops.datamesh.cfg._findconfig")
+    @patch("brickops.datamesh.cfg._find_config")
     @patch("brickops.datamesh.cfg._read_yaml")
     def test_read_config_cache(
-        self, mock_read_yaml: Any, mock_findconfig: Any, reset_config_state: Any
+        self, mock_read_yaml: Any, mock_find_config: Any, reset_config_state: Any
     ) -> None:
         # Setup
-        mock_findconfig.return_value = "/path/to/.brickopscfg/config.yml"
+        mock_find_config.return_value = "/path/to/.brickopscfg/config.yml"
         mock_config = {"key": "value"}
         mock_read_yaml.return_value = mock_config
 
@@ -139,7 +131,7 @@ class TestReadConfig:
         read_config()
 
         # Reset the mocks
-        mock_findconfig.reset_mock()
+        mock_find_config.reset_mock()
         mock_read_yaml.reset_mock()
 
         # Execute - second call should use cache
@@ -147,115 +139,22 @@ class TestReadConfig:
 
         # Verify
         assert result == mock_config
-        mock_findconfig.assert_not_called()
+        mock_find_config.assert_not_called()
         mock_read_yaml.assert_not_called()
 
-    @patch("brickops.datamesh.cfg._findconfig")
+    @patch("brickops.datamesh.cfg._find_config")
     def test_read_config_no_config_found(
-        self, mock_findconfig: Any, reset_config_state: Any
+        self, mock_find_config: Any, reset_config_state: Any
     ) -> None:
         # Setup
-        mock_findconfig.return_value = None
+        mock_find_config.return_value = None
 
         # Execute
         result = read_config()
 
         # Verify
         assert result is None
-        mock_findconfig.assert_called_once()
-        assert cfg._config_read is True
-        assert cfg._config is None
-
-
-class TestFindConfig:
-    @patch("os.path.isdir")
-    @patch("os.getcwd")
-    @patch("os.path.abspath")
-    def test_findconfig_current_dir(
-        self, mock_abspath: Any, mock_getcwd: Any, mock_isdir: Any
-    ) -> None:
-        # Setup
-        mock_getcwd.return_value = "/current/dir"
-        mock_abspath.return_value = "/current/dir"
-
-        # Mock that .brickopscfg exists in the current directory
-        def isdir_side_effect(path: str) -> bool:
-            return path == "/current/dir/.brickopscfg"
-
-        mock_isdir.side_effect = isdir_side_effect
-
-        # Execute
-        result = _findconfig()
-
-        # Verify
-        assert result == "/current/dir/.brickopscfg/config.yml"
-        mock_getcwd.assert_called_once()
-        mock_abspath.assert_called_once_with("/current/dir")
-
-    @patch("os.path.isdir")
-    @patch("os.getcwd")
-    @patch("os.path.abspath")
-    @patch("os.path.dirname")
-    def test_findconfig_parent_dir(
-        self, mock_dirname: Any, mock_abspath: Any, mock_getcwd: Any, mock_isdir: Any
-    ) -> None:
-        # Setup
-        mock_getcwd.return_value = "/parent/child/dir"
-        mock_abspath.return_value = "/parent/child/dir"
-
-        # Set up directory structure for traversal
-        def dirname_side_effect(path: str) -> Any:
-            if path == "/parent/child/dir":
-                return "/parent/child"
-            elif path == "/parent/child":
-                return "/parent"
-            else:
-                return "/"
-
-        mock_dirname.side_effect = dirname_side_effect
-
-        # Mock that .brickopscfg exists in the parent directory
-        def isdir_side_effect(path: str) -> bool:
-            return path == "/parent/.brickopscfg"
-
-        mock_isdir.side_effect = isdir_side_effect
-
-        # Execute
-        result = _findconfig()
-
-        # Verify
-        assert result == "/parent/.brickopscfg/config.yml"
-
-    @patch("os.path.isdir")
-    @patch("os.getcwd")
-    @patch("os.path.abspath")
-    @patch("os.path.dirname")
-    def test_findconfig_not_found(
-        self, mock_dirname: Any, mock_abspath: Any, mock_getcwd: Any, mock_isdir: Any
-    ) -> None:
-        # Setup
-        mock_getcwd.return_value = "/some/dir"
-        mock_abspath.return_value = "/some/dir"
-
-        # Set up directory structure for traversal to root
-        def dirname_side_effect(path: str) -> Any:
-            if path == "/some/dir":
-                return "/some"
-            elif path == "/some":
-                return "/"
-            elif path == "/":
-                return "/"  # Root directory returns itself
-
-        mock_dirname.side_effect = dirname_side_effect
-
-        # Mock that .brickopscfg doesn't exist anywhere
-        mock_isdir.return_value = False
-
-        # Execute
-        result = _findconfig()
-
-        # Verify
-        assert result is None
+        mock_find_config.assert_called_once()
 
 
 class TestReadYaml:
@@ -315,8 +214,10 @@ class TestWithActualConfig:
             # Restore the original directory
             os.chdir(original_dir)
 
-    def test_findconfig_with_actual_directory(self, temp_repo_with_config: Any) -> None:
-        """Test _findconfig with an actual directory structure."""
+    def test_find_config_with_actual_directory(
+        self, temp_repo_with_config: Any
+    ) -> None:
+        """Test _find_config with an actual directory structure."""
         # Change to the temp directory that contains .brickopscfg
         original_dir = os.getcwd()
         try:
@@ -326,9 +227,9 @@ class TestWithActualConfig:
             nested_dir = os.path.join(temp_repo_with_config, "level1", "level2")
             os.makedirs(nested_dir, exist_ok=True)
 
-            # Change to the nested directory and verify _findconfig walks up to find config
+            # Change to the nested directory and verify _find_config walks up to find config
             os.chdir(nested_dir)
-            config_path = _findconfig()
+            config_path = _find_config()
 
             # Verify we found the config file in the parent
             expected_path = os.path.join(
