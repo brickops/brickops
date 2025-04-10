@@ -40,8 +40,7 @@ def temp_repo_with_config(tmp_path: Path) -> Any:
     prod: "{db}"
     other: "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
 """
-    with open(config_path, "w") as f:
-        f.write(config_content)
+    config_path.write_text(config_content)
 
     # Return the path to the temp directory
     yield tmp_path
