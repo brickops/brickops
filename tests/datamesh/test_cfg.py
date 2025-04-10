@@ -1,15 +1,13 @@
-import os
 import pytest
-import tempfile
-import shutil
 from typing import Any
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 from brickops.datamesh.cfg import (
     get_config,
     read_config,
     _find_config,
     _read_yaml,
 )
+from pathlib import Path
 
 
 @pytest.fixture
@@ -20,19 +18,15 @@ def reset_config_state() -> Any:
 
 
 @pytest.fixture
-def temp_repo_with_config() -> Any:
+def temp_repo_with_config(tmp_path: Path) -> Any:
     """Create a temporary directory structure with a .brickopscfg/config.yml file."""
-    # Create a temporary directory to act as our repo
-    temp_dir = tempfile.mkdtemp()
+    # Create the .brickopscfg directory
+    config_dir = tmp_path / ".brickopscfg"
+    config_dir.mkdir(parents=True, exist_ok=True)
 
-    try:
-        # Create the .brickopscfg directory
-        config_dir = os.path.join(temp_dir, ".brickopscfg")
-        os.makedirs(config_dir)
-
-        # Create a config.yml file with the specified content
-        config_path = os.path.join(config_dir, "config.yml")
-        config_content = """naming:
+    # Create a config.yml file with the specified content
+    config_path = config_dir / "config.yml"
+    config_content = """naming:
   job:
     prod: "{org}_{domain}_{project}_{env}"
     other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}"
@@ -46,14 +40,22 @@ def temp_repo_with_config() -> Any:
     prod: "{db}"
     other: "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
 """
-        with open(config_path, "w") as f:
-            f.write(config_content)
+    with open(config_path, "w") as f:
+        f.write(config_content)
 
-        # Return the path to the temp directory
-        yield temp_dir
-    finally:
-        # Clean up the temporary directory
-        shutil.rmtree(temp_dir)
+    # Return the path to the temp directory
+    yield tmp_path
+
+
+def test_read_yaml_existing_file(tmp_path: Path) -> None:
+    tmp_file = tmp_path / "config.yml"
+    tmp_file.write_text("key: value")
+
+    # Execute
+    result = _read_yaml(tmp_file)
+
+    # Verify
+    assert result == {"key": "value"}
 
 
 class TestGetConfig:
@@ -157,95 +159,74 @@ class TestReadConfig:
         mock_find_config.assert_called_once()
 
 
-class TestReadYaml:
-    @patch("builtins.open", new_callable=mock_open, read_data="key: value")
-    def test_read_yaml_existing_file(self, mock_file: Any) -> None:
-        # Execute
-        result = _read_yaml("/path/to/config.yml")
-
-        # Verify
-        assert result == {"key": "value"}
-        mock_file.assert_called_once_with("/path/to/config.yml", "r")
-
-
 class TestWithActualConfig:
     def test_with_actual_config_file(
-        self, temp_repo_with_config: Any, reset_config_state: Any
+        self,
+        temp_repo_with_config: Any,
+        reset_config_state: Any,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test the config module with an actual config file."""
         # Change to the temp directory that contains .brickopscfg
-        original_dir = os.getcwd()
-        try:
-            os.chdir(temp_repo_with_config)
 
-            # Use the actual implementation to read the config
-            config = read_config()
+        monkeypatch.chdir(temp_repo_with_config)
 
-            # Verify the config was read correctly
-            assert config is not None
-            assert "naming" in config
-            assert "job" in config["naming"]
-            assert "pipeline" in config["naming"]
-            assert "catalog" in config["naming"]
-            assert "db" in config["naming"]
+        # Use the actual implementation to read the config
+        config = read_config()
 
-            # Check specific format strings
-            assert config["naming"]["job"]["prod"] == "{org}_{domain}_{project}_{env}"
-            assert (
-                config["naming"]["job"]["other"]
-                == "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}"
-            )
-            assert (
-                config["naming"]["pipeline"]["prod"]
-                == "{org}_{domain}_{project}_{env}_dlt"
-            )
+        # Verify the config was read correctly
+        assert config is not None
+        assert "naming" in config
+        assert "job" in config["naming"]
+        assert "pipeline" in config["naming"]
+        assert "catalog" in config["naming"]
+        assert "db" in config["naming"]
 
-            # Test get_config with the actual config
-            naming_config = get_config("naming")
-            assert naming_config is not None
-            assert naming_config["catalog"]["prod"] == "{domain}"
-            assert (
-                naming_config["db"]["other"]
-                == "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
-            )
-            assert get_config("nonexistent_key") is None
+        # Check specific format strings
+        assert config["naming"]["job"]["prod"] == "{org}_{domain}_{project}_{env}"
+        assert (
+            config["naming"]["job"]["other"]
+            == "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}"
+        )
+        assert (
+            config["naming"]["pipeline"]["prod"] == "{org}_{domain}_{project}_{env}_dlt"
+        )
 
-        finally:
-            # Restore the original directory
-            os.chdir(original_dir)
+        # Test get_config with the actual config
+        naming_config = get_config("naming")
+        assert naming_config is not None
+        assert naming_config["catalog"]["prod"] == "{domain}"
+        assert (
+            naming_config["db"]["other"]
+            == "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
+        )
+        assert get_config("nonexistent_key") is None
 
     def test_find_config_with_actual_directory(
-        self, temp_repo_with_config: Any
+        self,
+        temp_repo_with_config: Any,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test _find_config with an actual directory structure."""
         # Change to the temp directory that contains .brickopscfg
-        original_dir = os.getcwd()
-        try:
-            os.chdir(temp_repo_with_config)
+        # Create a nested directory structure
+        nested_dir = temp_repo_with_config / "level1" / "level2"
+        nested_dir.mkdir(parents=True, exist_ok=True)
 
-            # Create a nested directory structure
-            nested_dir = os.path.join(temp_repo_with_config, "level1", "level2")
-            os.makedirs(nested_dir, exist_ok=True)
+        # Change to the nested directory and verify _find_config walks up to find config
+        monkeypatch.chdir(temp_repo_with_config)
+        config_path = _find_config()
 
-            # Change to the nested directory and verify _find_config walks up to find config
-            os.chdir(nested_dir)
-            config_path = _find_config()
+        # Verify we found the config file in the parent
+        expected_path = temp_repo_with_config / ".brickopscfg" / "config.yml"
 
-            # Verify we found the config file in the parent
-            expected_path = os.path.join(
-                temp_repo_with_config, ".brickopscfg", "config.yml"
-            )
-            assert config_path is not None
-            assert os.path.normpath(config_path) == os.path.normpath(expected_path)
-
-        finally:
-            # Restore the original directory
-            os.chdir(original_dir)
+        assert config_path is not None
+        assert config_path == expected_path
 
     def test_read_yaml_with_actual_file(self, temp_repo_with_config: Any) -> None:
         """Test _read_yaml with an actual YAML file."""
         # Get the path to the actual config file
-        config_path = os.path.join(temp_repo_with_config, ".brickopscfg", "config.yml")
+        config_path = temp_repo_with_config / ".brickopscfg" / "config.yml"
 
         # Read the YAML file directly
         result = _read_yaml(config_path)
