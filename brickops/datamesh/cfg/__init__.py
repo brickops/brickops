@@ -20,13 +20,13 @@ def get_config(key: str, default: str | None = None) -> Any | None:
 def read_config() -> dict[Any, Any] | None:
     """Read the configuration from the YAML file."""
     # Define the path to the config file
-    config_path = _find_config()
+    config_path = find_config()
     if not config_path:
         return None
     return _read_yaml(config_path)
 
 
-def _find_config() -> Path | None:
+def find_config() -> Path | None:
     """
     Look for a .brickopscfg folder in the current directory and each parent
     directory until reaching the system root or encountering an error.

@@ -1,8 +1,8 @@
 from typing import Any
 
 import pytest
+import pytest_mock
 
-from unittest import mock
 from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.job.buildconfig.build import build_job_config
 from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaultconfig
@@ -108,18 +108,20 @@ def test_that_job_name_is_correct_when_in_prod_env(
     assert result.name == "test_project_prod"
 
 
-@mock.patch(
-    "brickops.datamesh.cfg._find_config",
-    return_value=pytest.BRICKOPS_FULLMESH_CONFIG,  # type: ignore[attr-defined]
-)
 def test_that_job_name_is_correct_when_in_prod_env_w_org(
-    basic_config: dict[str, Any], db_context: DbContext, monkeypatch: pytest.MonkeyPatch
+    basic_config: dict[str, Any],
+    db_context: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
+    brickops_fullmesh_config: str,
 ) -> None:
+    mocker.patch(
+        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmesh_config
+    )
     db_context.username = "service_principal"
     db_context.is_service_principal = True
-    db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/org/acme/domains/domainfoo/projects/projectfoo/flows/prep/taskfoo"
+    db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/orgs/acme/domains/domainfoo/projects/projectfoo/flows/prep/taskfoo"
     result = build_job_config(basic_config, env="prod", db_context=db_context)
-    assert result.name == "domainfoo_projectfoo_prod"
+    assert result.name == "acme_domainfoo_projectfoo_taskfoo_prod"
 
 
 def test_that_cluster_is_set_correct_in_job_config(

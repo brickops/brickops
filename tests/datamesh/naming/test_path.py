@@ -1,6 +1,6 @@
 import pytest
+import pytest_mock
 
-from unittest import mock
 from typing import Any
 from brickops.databricks.context import DbContext
 from brickops.datamesh.naming import (
@@ -55,54 +55,54 @@ def test_starting_with_valid_path_returns_correct_catalog_name(
     assert catname_from_path(db_context=db_context) == "sales"
 
 
-@mock.patch(
-    "brickops.datamesh.cfg.read_config",
-    return_value=pytest.BRICKOPS_DEFAULT_CONFIG,  # type: ignore[attr-defined]
-)
 def test_starting_with_valid_path_returns_correct_catalog_name_w_conf(
-    _: Any,
     valid_path: str,
     db_context: DbContext,
+    mocker: pytest_mock.MockType,
+    brickops_default_config: dict[str, Any],
 ) -> None:
+    mocker.patch(
+        "brickops.datamesh.cfg.read_config", return_value=brickops_default_config
+    )
     db_context.notebook_path = valid_path
     assert catname_from_path(db_context=db_context) == "sales"
 
 
-@mock.patch(
-    "brickops.datamesh.cfg.read_config",
-    return_value=pytest.BRICKOPS_DEFAULT_CONFIG,  # type: ignore[attr-defined]
-)
 def test_starting_with_valid_path_returns_correct_catalog_name_w_org(
-    _: Any,
     valid_org_path: str,
     db_context: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
+    brickops_default_config: dict[str, Any],
 ) -> None:
+    mocker.patch(
+        "brickops.datamesh.cfg.read_config", return_value=brickops_default_config
+    )
     db_context.notebook_path = valid_org_path
     assert catname_from_path(db_context=db_context) == "sales"
 
 
-@mock.patch(
-    "brickops.datamesh.cfg.read_config",
-    return_value=pytest.BRICKOPS_DEFAULT_CONFIG,  # type: ignore[attr-defined]
-)
 def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_conf(
-    _: Any,
     valid_org_path: str,
     db_context: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
+    brickops_default_config: dict[str, Any],
 ) -> None:
+    mocker.patch(
+        "brickops.datamesh.cfg.read_config", return_value=brickops_default_config
+    )
     db_context.notebook_path = valid_org_path
     assert catname_from_path(db_context=db_context) == "sales"
 
 
-@mock.patch(
-    "brickops.datamesh.cfg.read_config",
-    return_value=pytest.BRICKOPS_FULLMESH_CONFIG,  # type: ignore[attr-defined]
-)
 def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_fullmesh_conf(
-    _: Any,
     valid_org_path: str,
     db_context: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
+    brickops_fullmesh_config: dict[str, Any],
 ) -> None:
+    mocker.patch(
+        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmesh_config
+    )
     db_context.notebook_path = valid_org_path
     assert catname_from_path(db_context=db_context) == "acme_sales_testproject_test"
 

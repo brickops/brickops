@@ -1,7 +1,7 @@
 import pytest
+import pytest_mock
 
 from typing import Any
-from unittest import mock
 from brickops.databricks.context import DbContext
 from brickops.datamesh.naming import (
     dbname,
@@ -59,10 +59,11 @@ GIT_SOURCE = {
 }
 
 
-@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
 def test_tablename_in_test_with_empty_widgets(
-    _: Any, db_context_empty_widgets_short_path: DbContext
+    db_context_empty_widgets_short_path: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
 ) -> None:
+    mocker.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
     result = tablename(
         tbl="tblfoo",
         db="dbfoo",
@@ -72,10 +73,11 @@ def test_tablename_in_test_with_empty_widgets(
     assert result == "training.test_userfoo_apisourcedbranch_apidefgh_dbfoo.tblfoo"
 
 
-@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
 def test_dbname_in_test_with_empty_widgets(
-    _: Any, db_context_empty_widgets_short_path: DbContext
+    db_context_empty_widgets_short_path: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
 ) -> None:
+    mocker.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
     result = dbname(
         db="dbfoo",
         cat="training",
@@ -179,14 +181,14 @@ def test_dbname_with_norwegian_characters_in_name_results_in_backticked_name(
     assert result == "`en_liten_ø`.test_TestUser_gitbranch_abcdefgh_test_db"
 
 
-@mock.patch(
-    "brickops.datamesh.cfg.read_config",
-    return_value=pytest.BRICKOPS_FULLMESH_CONFIG,  # type: ignore[attr-defined]
-)
 def test_full_branch_name_with_slash_is_stripped_correctly_w_full_mesh(
-    _: Any,
     db_context: DbContext,
+    mocker: pytest_mock.plugin.MockerFixture,
+    brickops_fullmesh_config: dict[str, Any],
 ) -> None:
+    mocker.patch(
+        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmesh_config
+    )
     branch_name = "feature/branch"
     db_context.widgets["git_branch"] = branch_name
     result = dbname(db_context=db_context, db="test_db", cat="training")

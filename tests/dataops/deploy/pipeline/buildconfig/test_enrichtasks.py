@@ -1,7 +1,5 @@
 import pytest
-from typing import Any
-from unittest import mock
-
+import pytest_mock
 from brickops.databricks.context import DbContext
 from brickops.dataops.deploy.pipeline.buildconfig.enrichtasks import enrich_tasks
 from brickops.dataops.deploy.pipeline.buildconfig.pipeline_config import (
@@ -42,12 +40,12 @@ GIT_SOURCE = {
 }
 
 
-@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
 def test_default_config_prod_env(
-    _: Any,
     databricks_context_data: DbContext,
     basic_config: PipelineConfig,
+    mocker: pytest_mock.plugin.MockerFixture,
 ) -> None:
+    mocker.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
     basic_config.pipeline_tasks = [
         {
             "pipeline_key": "revenue",
@@ -68,12 +66,12 @@ def test_default_config_prod_env(
     ]
 
 
-@mock.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
 def test_default_config_test_env(
-    _: Any,
     databricks_context_data: DbContext,
     basic_config: PipelineConfig,
+    mocker: pytest_mock.plugin.MockerFixture,
 ) -> None:
+    mocker.patch("brickops.datamesh.naming.git_source", return_value=GIT_SOURCE)
     basic_config.pipeline_tasks = [
         {
             "pipeline_key": "revenue",
