@@ -1,2 +1,3 @@
 import logging
-logging.getLogger('brickops').addHandler(logging.NullHandler())
+
+logging.getLogger("brickops").addHandler(logging.NullHandler())
