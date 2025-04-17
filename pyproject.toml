@@ -5,7 +5,6 @@ description = "Knowit's dataops library - simplifying building data pipelines in
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "pytest-mock>=3.14.0",
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
 ]
@@ -16,6 +15,7 @@ dev = [
     "mypy>=1.14.0",
     "pre-commit>=4.1.0",
     "pyspark>=3.5.4",
+    "pytest-mock>=3.14.0",
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
     "requests-mock>=1.12.1",
