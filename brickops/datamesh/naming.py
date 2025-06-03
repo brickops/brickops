@@ -28,7 +28,10 @@ def tablename(
     If a catalog is not provided, it is derived from the notebook path.
     If an env is not provided, it is derived from environment settings.
     If a db_context is not provided, it is derived from the current context.
-    Cat is the Unity Catalog catalog name."""
+    Cat is the Unity Catalog catalog name.
+    
+    db can either be a <catalog>.<db> path or a simply the database name.
+    """
     # Get dbutils from calling module, as databricks lib not available in UC cluster
     if not tbl:
         msg = "tbl must be a non-empty string"
@@ -43,7 +46,10 @@ def tablename(
     if not cat:
         cat = catname_from_path(db_context=db_context, env=env)
 
-    db_name = dbname(db=db, cat=cat, db_context=db_context, env=env)
+    if "." not in db:
+        db_name = dbname(db=db, cat=cat, db_context=db_context, env=env)
+    else:
+        db_name = db
     return _escape_sql_name(f"{db_name}.{tbl}")
 
 
