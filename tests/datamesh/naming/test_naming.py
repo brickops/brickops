@@ -49,6 +49,15 @@ def test_tablename_in_test_contains_user_and_branch(
     )
     assert result == "training.test_TestUser_featnewbranch_abcdefgh_test_db.test_tbl"
 
+def test_tablename_accepts_db_path(
+    db_context: DbContext,
+) -> None:
+    db_context.widgets["git_branch"] = "feat/new_branch"
+    result = tablename(
+        tbl="test_tbl", db="training.test_TestUser_featnewbranch_abcdefgh_test_db", cat="training", db_context=db_context
+    )
+    assert result == "training.test_TestUser_featnewbranch_abcdefgh_test_db.test_tbl"
+
 
 GIT_SOURCE = {
     "git_url": "api_sourced_url",
