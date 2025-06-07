@@ -18,3 +18,10 @@ def brickops_default_config() -> dict[str, Any] | Any:
 @pytest.fixture
 def brickops_fullmesh_config() -> dict[str, Any] | Any:
     return read_config(Path(__file__).parent / "datamesh/fixtures/configs/fullmesh.yml")
+
+
+@pytest.fixture
+def brickops_fullmeshre_config() -> dict[str, Any] | Any:
+    return read_config(
+        Path(__file__).parent / "datamesh/fixtures/configs/fullmeshre.yml"
+    )

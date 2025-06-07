@@ -135,10 +135,10 @@ def test_that_job_name_is_correct_when_in_prod_env_w_org(
     basic_config: dict[str, Any],
     db_context: DbContext,
     mocker: pytest_mock.plugin.MockerFixture,
-    brickops_fullmesh_config: str,
+    brickops_fullmeshre_config: str,
 ) -> None:
     mocker.patch(
-        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmesh_config
+        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmeshre_config
     )
     db_context.username = "service_principal"
     db_context.is_service_principal = True
