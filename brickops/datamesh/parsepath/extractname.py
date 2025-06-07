@@ -3,7 +3,7 @@ import re
 from typing import Any
 from dataclasses import dataclass
 from brickops.datamesh.cfg import get_config
-from brickops.datamesh.parsepath.parse import parsepath, ParsedPath
+from brickops.datamesh.parsepath.parse import parsepath
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +23,31 @@ def extract_name_from_path(
     pipeline_context: PipelineContext,
     resource_name: str | None = None,
 ) -> str:
+    # Determine if a custom path regexp is configured
+    naming_root = get_config("naming") or {}
+    path_regexp = naming_root.get("path_regexp")
+    if path_regexp:
+        # Use configurable parser first, then fallback if no match
+        from brickops.datamesh.parserepath.parse import parsepath as _parse_by_regex
+
+        parsed_mapping = _parse_by_regex(path)
+        if not parsed_mapping:
+            logger.debug("Config regex did not match, falling back to default parser")
+            parsed_obj = parsepath(path)
+            if not parsed_obj:
+                return ""
+            parsed_mapping = vars(parsed_obj)
+    else:
+        # Fallback to default parser
+        parsed_obj = parsepath(path)
+        if not parsed_obj:
+            return ""
+        parsed_mapping = vars(parsed_obj)
+    # Compose the name using dynamic mapping
     naming_config = _get_naming_config(resource=resource, env=pipeline_context.env)
-    parsed_path = parsepath(path)
-    if not parsed_path:
-        return ""
     return _compose_name(
         naming_config=naming_config,
-        parsed_path=parsed_path,
+        parsed_mapping=parsed_mapping,
         pipeline_context=pipeline_context,
         resource=resource,
         resource_name=resource_name,
@@ -38,31 +56,25 @@ def extract_name_from_path(
 
 def _compose_name(
     naming_config: str,
-    parsed_path: ParsedPath,
+    parsed_mapping: dict[str, str],
     pipeline_context: PipelineContext,
     resource: str,
     resource_name: str | None,
 ) -> str:
-    """Compose the name based on the provided naming_config and parsed path.
-
-    Example naming_config string: "{env}_{username}_{gitbranch}_{gitref}_{db}"
-    """
-    # Create a dictionary with all possible variables
-    format_dict = {
-        "org": parsed_path.org if parsed_path.org else "",
-        "domain": parsed_path.domain,
-        "project": parsed_path.project,
-        "activity": parsed_path.activity if parsed_path.activity else "",
-        "flowtype": parsed_path.flowtype,
-        "flow": parsed_path.flow,
-        "env": pipeline_context.env,
-        "username": pipeline_context.username,
-        "gitbranch": pipeline_context.gitbranch,
-        "gitshortref": pipeline_context.gitshortref,
-        resource: resource_name,
-    }
-    logger.info("extractname.py:" + repr(61) + ":naming_config:" + repr(naming_config))
-    # Replace the variables in the template with actual values
+    """Compose the name based on the provided naming_config and parsed path mapping."""
+    # Start with captured path components
+    format_dict: dict[str, Any] = dict(parsed_mapping)
+    # Add context variables
+    format_dict.update(
+        {
+            "env": pipeline_context.env,
+            "username": pipeline_context.username,
+            "gitbranch": pipeline_context.gitbranch,
+            "gitshortref": pipeline_context.gitshortref,
+        }
+    )
+    # Include resource name under its placeholder key
+    format_dict[resource] = resource_name or ""
     return naming_config.format(**format_dict)
 
 
