@@ -248,7 +248,14 @@ class ApiClient:
         folders_response = self.get(
             "repos", version="2.0", params={"path_prefix": "/Users"}
         )
-        return repos_response.get("repos", []) + folders_response.get("repos", [])  # type: ignore [no-any-return]
+        shared_response = self.get(
+            "repos", version="2.0", params={"path_prefix": "/Shared"}
+        )
+        return (
+            repos_response.get("repos", [])
+            + folders_response.get("repos", [])
+            + shared_response.get("repos", [])
+        )  # type: ignore[no-any-return]
 
     def unpack_response(self: ApiClient, response: requests.Response) -> dict[str, Any]:
         response.raise_for_status()
