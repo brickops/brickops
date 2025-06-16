@@ -35,12 +35,13 @@ def build_job_config(
     full_cfg.tags = tags
     full_cfg.parameters.extend(build_context_parameters(env, tags))
     full_cfg = enrich_tasks(job_config=full_cfg, db_context=db_context)
-    if db_context.is_service_principal:
-        full_cfg.run_as = {"service_principal_name": db_context.username}
-    else:  # if we have a service principal, we need to use the correct config
-        full_cfg.run_as = {
-            "user_name": db_context.username,
-        }
+    if not full_cfg.run_as:
+        if db_context.is_service_principal:
+            full_cfg.run_as = {"service_principal_name": db_context.username}
+        else:  # if we have a service principal, we need to use the correct config
+            full_cfg.run_as = {
+                "user_name": db_context.username,
+            }
 
     return full_cfg
 
