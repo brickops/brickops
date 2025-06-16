@@ -27,6 +27,23 @@ def basic_config() -> dict[str, Any]:
         },
     }
 
+@pytest.fixture
+def config_w_run_as() -> dict[str, Any]:
+    return {
+        "run_as": {"service_principal_name": "mysp"},
+        "tasks": [
+            {
+                "task_key": "task_key",
+                "job_cluster_key": "common-job-cluster",
+            }
+        ],
+        "git_source": {
+            "git_url": "git_url",
+            "git_branch": "git_branch",
+            "git_commit": "abcdefgh123",
+            "git_path": "/Repos/test@vlfk.no/dp-notebooks/",
+        },
+    }
 
 @pytest.fixture
 def db_context() -> DbContext:
@@ -74,6 +91,12 @@ def test_that_build_job_sets_correct_run_as(
     result = build_job_config(basic_config, "test", db_context)
     assert result.run_as == {"user_name": "TestUser@vlfk.no"}
 
+def test_that_build_job_handles_specified_run_as(
+        config_w_run_as: dict[str, Any],
+        db_context: DbContext
+    ) -> None:
+    result = build_job_config(config_w_run_as, "test", db_context)
+    assert result.run_as == {"service_principal_name": "mysp"}
 
 def test_that_tags_are_set_correctly(
     basic_config: dict[str, Any], db_context: DbContext
