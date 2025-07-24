@@ -208,6 +208,24 @@ The resource names would become:
 
 * With org support, in the following notebook: `/Repos/test@foobar.foo/dataplatform/something/org/acme/domains/sales/projects/projectfoo/flows/testflow/foo_notebook`, a config of `{org}_{domain}_{project}_{env}` would result in `acme_sales_projectfoo_prod` for a production environment.
 
+## Development tools
+
+### Ruff
+
+How to run ruff:
+
+```
+uv run ruff check --output-format=github .
+```
+
+### Mypy
+
+How to run mypy:
+
+```
+mypy .
+```
+
 
 ## Underlying philosophy
 
