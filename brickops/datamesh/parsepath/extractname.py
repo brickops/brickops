@@ -4,6 +4,7 @@ from typing import Any
 from dataclasses import dataclass
 from brickops.datamesh.cfg import get_config
 from brickops.datamesh.parsepath.parse import parsepath
+from brickops.datamesh.parserepath.parse import parsepath as reparsepath
 
 logger = logging.getLogger(__name__)
 
@@ -26,23 +27,20 @@ def extract_name_from_path(
     # Determine if a custom path regexp is configured
     naming_root = get_config("naming") or {}
     path_regexp = naming_root.get("path_regexp")
+    parsed_mapping = None
     if path_regexp:
         # Use configurable parser first, then fallback if no match
-        from brickops.datamesh.parserepath.parse import parsepath as _parse_by_regex
-
-        parsed_mapping = _parse_by_regex(path)
+        parsed_mapping = reparsepath(path)
         if not parsed_mapping:
             logger.debug("Config regex did not match, falling back to default parser")
-            parsed_obj = parsepath(path)
-            if not parsed_obj:
-                return ""
-            parsed_mapping = vars(parsed_obj)
-    else:
-        # Fallback to default parser
+    if not parsed_mapping:
+        # Fallback to default parser if no path_regexp or reparsepath() failed
         parsed_obj = parsepath(path)
         if not parsed_obj:
             return ""
         parsed_mapping = vars(parsed_obj)
+    if not parsed_mapping:
+        return ""
     # Compose the name using dynamic mapping
     naming_config = _get_naming_config(resource=resource, env=pipeline_context.env)
     return _compose_name(

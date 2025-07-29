@@ -1,11 +1,12 @@
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 
 from brickops.datamesh.parserepath.parse import parsepath
 import brickops.datamesh.cfg as cfg
 
 
 @pytest.fixture(autouse=True)
-def fake_alt_config(monkeypatch):
+def fake_alt_config(monkeypatch: MonkeyPatch) -> None:
     # alternate config for tests
     test_regex = r".*/pkg/(?P<pkg>[^>/]+)/(?P<area>[^/]+)/(?P<job>[^/]+)"
     monkeypatch.setattr(
@@ -13,7 +14,7 @@ def fake_alt_config(monkeypatch):
     )
 
 
-def test_parsepath_alt_with_valid_path():
+def test_parsepath_alt_with_valid_path() -> None:
     path = "/somewhere/pkg/core/logging/myjob"
     result = parsepath(path)
     assert result == {
@@ -23,7 +24,7 @@ def test_parsepath_alt_with_valid_path():
     }
 
 
-def test_parsepath_alt_invalid_path():
+def test_parsepath_alt_invalid_path() -> None:
     path = "/pkg/onlyonecomponent"
     result = parsepath(path)
     assert result is None
