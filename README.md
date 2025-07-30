@@ -215,12 +215,24 @@ The resource names would become:
 How to run ruff:
 
 ```
+make ruff
+```
+
+Without make:
+
+```
 uv run ruff check --output-format=github .
 ```
 
 ### Mypy
 
 How to run mypy:
+
+```
+make mypy
+```
+
+Without make:
 
 ```
 mypy .
