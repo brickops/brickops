@@ -231,4 +231,4 @@ mypy .
 
 The framework is partly based on the thoughts presented in the article [Data Platform Urbanism - Sustainable Plans for your Data Work](https://www.linkedin.com/pulse/data-platform-urbanism-sustainable-plans-your-work-p%25C3%25A5l-de-vibe/).
 
-It can be explored in the open source workshop (Databricks DataOps course)[https://github.com/paalvibe/databricks-dataops-course].
+It can be explored in the open source workshop [Databricks DataOps course](https://github.com/paalvibe/databricks-dataops-course).
