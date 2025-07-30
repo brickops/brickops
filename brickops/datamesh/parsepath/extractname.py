@@ -4,7 +4,7 @@ from typing import Any
 from dataclasses import dataclass
 from brickops.datamesh.cfg import get_config
 from brickops.datamesh.parsepath.parse import parsepath
-from brickops.datamesh.parserepath.parse import parsepath as reparsepath
+from brickops.datamesh.parserepath.parse import parsepath as parserepath
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +30,11 @@ def extract_name_from_path(
     parsed_mapping = None
     if path_regexp:
         # Use configurable parser first, then fallback if no match
-        parsed_mapping = reparsepath(path)
+        parsed_mapping = parserepath(path, path_regexp)
         if not parsed_mapping:
             logger.debug("Config regex did not match, falling back to default parser")
     if not parsed_mapping:
-        # Fallback to default parser if no path_regexp or reparsepath() failed
+        # Fallback to default parser if no path_regexp or parserepath() failed
         parsed_obj = parsepath(path)
         if not parsed_obj:
             return ""

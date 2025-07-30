@@ -1,22 +1,11 @@
-import pytest
-from _pytest.monkeypatch import MonkeyPatch
-
 from brickops.datamesh.parserepath.parse import parsepath
-import brickops.datamesh.cfg as cfg
 
-
-@pytest.fixture(autouse=True)
-def fake_config(monkeypatch: MonkeyPatch) -> None:
-    # default config for tests
-    test_regex = r"/shared/monorepo/orgs/(?P<org>[^/]+)/domains/(?P<domain>[^/]+)/projects/(?P<project>[^/]+)/(?P<activity>[^/]+)/(?P<flowtype>[^/]+)/(?P<flow>[^/]+)"
-    monkeypatch.setattr(
-        cfg, "read_config", lambda: {"naming": {"path_regexp": test_regex}}
-    )
+DEFAULT_REGEXP = r"/shared/monorepo/orgs/(?P<org>[^/]+)/domains/(?P<domain>[^/]+)/projects/(?P<project>[^/]+)/(?P<activity>[^/]+)/(?P<flowtype>[^/]+)/(?P<flow>[^/]+)"
 
 
 def test_parsepath_with_valid_path() -> None:
     path = "/shared/monorepo/orgs/acme/domains/analytics/projects/sales/Flow/prep/load_data"
-    result = parsepath(path)
+    result = parsepath(path, DEFAULT_REGEXP)
     assert result == {
         "org": "acme",
         "domain": "analytics",
@@ -29,19 +18,18 @@ def test_parsepath_with_valid_path() -> None:
 
 def test_parsepath_invalid_path() -> None:
     path = "/some/other/path/that/does/not/match"
-    result = parsepath(path)
+    result = parsepath(path, DEFAULT_REGEXP)
     assert result is None
 
 
-def test_parsepath_no_config(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(cfg, "read_config", lambda: None)
+def test_parsepath_no_config() -> None:
     result = parsepath(
-        "/shared/monorepo/orgs/acme/domains/analytics/projects/sales/Flow/prep/load_data"
+        "/shared/monorepo/orgs/acme/domains/analytics/projects/sales/Flow/prep/load_data",
+        None,
     )
     assert result is None
 
 
-def test_parsepath_invalid_regex(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(cfg, "read_config", lambda: {"naming": {"path_regexp": "("}})
-    result = parsepath("/any/path")
+def test_parsepath_invalid_regex() -> None:
+    result = parsepath("/any/path", "(")
     assert result is None
