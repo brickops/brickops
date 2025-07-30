@@ -208,9 +208,39 @@ The resource names would become:
 
 * With org support, in the following notebook: `/Repos/test@foobar.foo/dataplatform/something/org/acme/domains/sales/projects/projectfoo/flows/testflow/foo_notebook`, a config of `{org}_{domain}_{project}_{env}` would result in `acme_sales_projectfoo_prod` for a production environment.
 
+## Development tools
+
+### Ruff
+
+How to run ruff:
+
+```
+make ruff
+```
+
+Without make:
+
+```
+uv run ruff check --output-format=github .
+```
+
+### Mypy
+
+How to run mypy:
+
+```
+make mypy
+```
+
+Without make:
+
+```
+mypy .
+```
+
 
 ## Underlying philosophy
 
 The framework is partly based on the thoughts presented in the article [Data Platform Urbanism - Sustainable Plans for your Data Work](https://www.linkedin.com/pulse/data-platform-urbanism-sustainable-plans-your-work-p%25C3%25A5l-de-vibe/).
 
-It can be explored in the open source workshop (Databricks DataOps course)[https://github.com/paalvibe/databricks-dataops-course].
+It can be explored in the open source workshop [Databricks DataOps course](https://github.com/paalvibe/databricks-dataops-course).
