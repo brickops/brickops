@@ -49,12 +49,16 @@ def test_tablename_in_test_contains_user_and_branch(
     )
     assert result == "training.test_TestUser_featnewbranch_abcdefgh_test_db.test_tbl"
 
+
 def test_tablename_accepts_db_path(
     db_context: DbContext,
 ) -> None:
     db_context.widgets["git_branch"] = "feat/new_branch"
     result = tablename(
-        tbl="test_tbl", db="training.test_TestUser_featnewbranch_abcdefgh_test_db", cat="training", db_context=db_context
+        tbl="test_tbl",
+        db="training.test_TestUser_featnewbranch_abcdefgh_test_db",
+        cat="training",
+        db_context=db_context,
     )
     assert result == "training.test_TestUser_featnewbranch_abcdefgh_test_db.test_tbl"
 
@@ -193,10 +197,10 @@ def test_dbname_with_norwegian_characters_in_name_results_in_backticked_name(
 def test_full_branch_name_with_slash_is_stripped_correctly_w_full_mesh(
     db_context: DbContext,
     mocker: pytest_mock.plugin.MockerFixture,
-    brickops_fullmesh_config: dict[str, Any],
+    brickops_fullmeshre_config: dict[str, Any],
 ) -> None:
     mocker.patch(
-        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmesh_config
+        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmeshre_config
     )
     branch_name = "feature/branch"
     db_context.widgets["git_branch"] = branch_name

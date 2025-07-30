@@ -98,10 +98,10 @@ def test_starting_with_valid_path_returns_correct_catalog_name_w_org_w_fullmesh_
     valid_org_path: str,
     db_context: DbContext,
     mocker: pytest_mock.plugin.MockerFixture,
-    brickops_fullmesh_config: dict[str, Any],
+    brickops_fullmeshre_config: dict[str, Any],
 ) -> None:
     mocker.patch(
-        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmesh_config
+        "brickops.datamesh.cfg.read_config", return_value=brickops_fullmeshre_config
     )
     db_context.notebook_path = valid_org_path
     assert catname_from_path(db_context=db_context) == "acme_sales_testproject_test"
