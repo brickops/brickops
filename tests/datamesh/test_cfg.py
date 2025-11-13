@@ -28,17 +28,17 @@ def temp_repo_with_config(tmp_path: Path) -> Any:
     config_path = config_dir / "config.yml"
     config_content = """naming:
   job:
-    prod: "{org}_{domain}_{project}_{env}"
-    other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}"
+    prod: "{org}_{domain}_{project}_{target}"
+    other: "{org}_{domain}_{project}_{target}_{username}_{gitbranch}_{gitshortref}"
   pipeline:
-    prod: "{org}_{domain}_{project}_{env}_dlt"
-    other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}_dlt"
+    prod: "{org}_{domain}_{project}_{target}_dlt"
+    other: "{org}_{domain}_{project}_{target}_{username}_{gitbranch}_{gitshortref}_dlt"
   catalog:
     prod: "{domain}"
     other: "{domain}"
   db:
     prod: "{db}"
-    other: "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
+    other: "{target}_{username}_{gitbranch}_{gitshortref}_{db}"
 """
     config_path.write_text(config_content)
 
@@ -178,12 +178,14 @@ def test_with_actual_config_file(
     assert "db" in config["naming"]
 
     # Check specific format strings
-    assert config["naming"]["job"]["prod"] == "{org}_{domain}_{project}_{env}"
+    assert config["naming"]["job"]["prod"] == "{org}_{domain}_{project}_{target}"
     assert (
         config["naming"]["job"]["other"]
-        == "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}"
+        == "{org}_{domain}_{project}_{target}_{username}_{gitbranch}_{gitshortref}"
     )
-    assert config["naming"]["pipeline"]["prod"] == "{org}_{domain}_{project}_{env}_dlt"
+    assert (
+        config["naming"]["pipeline"]["prod"] == "{org}_{domain}_{project}_{target}_dlt"
+    )
 
     # Test get_config with the actual config
     naming_config = get_config("naming")
@@ -191,7 +193,7 @@ def test_with_actual_config_file(
     assert naming_config["catalog"]["prod"] == "{domain}"
     assert (
         naming_config["db"]["other"]
-        == "{env}_{username}_{gitbranch}_{gitshortref}_{db}"
+        == "{target}_{username}_{gitbranch}_{gitshortref}_{db}"
     )
     assert get_config("nonexistent_key") is None
 

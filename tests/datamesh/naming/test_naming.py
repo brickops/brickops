@@ -23,7 +23,7 @@ def db_context() -> DbContext:
             "git_url": "git_url",
             "git_branch": "git_branch",
             "git_commit": "abcdefgh123",
-            "pipeline_env": "test",
+            "target": "test",
         },
     )
 
@@ -99,7 +99,7 @@ def test_dbname_in_test_with_empty_widgets(
     assert result == "training.test_userfoo_apisourcedbranch_apidefgh_dbfoo"
 
 
-def test_tablename_in_test_in_prod_env_from_widget_var_pipeline_env(
+def test_tablename_in_test_in_prod_env_from_widget_var_target(
     db_context: DbContext,
 ) -> None:
     db_context.widgets["git_branch"] = "feat/new_branch"
@@ -115,8 +115,8 @@ def test_tablename_in_prod_does_not_contain_user_and_branch(
 ) -> None:
     db_context.username = "ServicePrincipalName"  # we are implicitly in prod when username does not contains @
     del db_context.widgets[
-        "pipeline_env"
-    ]  # remove pipeline_env=test, since it overrides username check
+        "target"
+    ]  # remove target=test, since it overrides username check
     result = tablename(
         tbl="test_tbl", db="test_db", cat="training", db_context=db_context
     )
@@ -129,8 +129,8 @@ def test_tablename_with_norwegian_characters_in_table_results_in_backticked_name
 ) -> None:
     db_context.username = "ServicePrincipal"
     del db_context.widgets[
-        "pipeline_env"
-    ]  # remove pipeline_env=test, since it overrides username check
+        "target"
+    ]  # remove target=test, since it overrides username check
     result = tablename(
         tbl="test_tøbbel",
         db="test_db",
@@ -146,8 +146,8 @@ def test_tablename_with_norwegian_characters_in_catalog_and_table_results_in_bac
 ) -> None:
     db_context.username = "ServicePrincipal"
     del db_context.widgets[
-        "pipeline_env"
-    ]  # remove pipeline_env=test, since it overrides username check
+        "target"
+    ]  # remove target=test, since it overrides username check
     result = tablename(
         tbl="test_tøbbel",
         db="test_db",
@@ -189,7 +189,7 @@ def test_full_branch_name_with_spaces_is_stripped_correctly(
 def test_dbname_with_norwegian_characters_in_name_results_in_backticked_name(
     db_context: DbContext,
 ) -> None:
-    db_context.widgets["pipeline_env"] = "test"
+    db_context.widgets["target"] = "test"
     result = dbname(db_context=db_context, db="test_db", cat="en_liten_ø")
     assert result == "`en_liten_ø`.test_TestUser_gitbranch_abcdefgh_test_db"
 
@@ -221,7 +221,7 @@ def test_name_from_path_is_correct_prod(
     cat = name_from_path(
         resource="catalog",
         db_context=db_context,
-        env="prod",
+        target="prod",
     )
     assert cat == "domainfoo"
 
@@ -229,12 +229,12 @@ def test_name_from_path_is_correct_prod(
 def test_jobname(
     db_context: DbContext,
 ) -> None:
-    result = jobname(db_context=db_context, env="test")
+    result = jobname(db_context=db_context, target="test")
     assert result == "domainfoo_projectfoo_test_TestUser_gitbranch_abcdefgh"
 
 
 def test_pipelinename(
     db_context: DbContext,
 ) -> None:
-    result = pipelinename(db_context=db_context, env="test")
+    result = pipelinename(db_context=db_context, target="test")
     assert result == "domainfoo_projectfoo_test_TestUser_gitbranch_abcdefgh_dlt"

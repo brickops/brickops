@@ -13,13 +13,13 @@ if TYPE_CHECKING:
 def current_env(db_context: DbContext | None = None) -> str:
     """Get the current environment.
 
-    If pipeline_env is not specified in the widgets, we rely on the username to detect
+    If target is not specified in the widgets, we rely on the username to detect
     if we are running in the 'test' environment.
     Default to what is set in the widgets if environment is not available and
     finally prod if that also does not exist.
     """
     if db_context:
-        if env_from_widget := db_context.widgets.get("pipeline_env", ""):
+        if env_from_widget := db_context.widgets.get("target", ""):
             return env_from_widget
         if "@" in db_context.username:
             return "test"

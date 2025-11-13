@@ -27,6 +27,7 @@ def basic_config() -> dict[str, Any]:
         },
     }
 
+
 @pytest.fixture
 def config_w_run_as() -> dict[str, Any]:
     return {
@@ -44,6 +45,7 @@ def config_w_run_as() -> dict[str, Any]:
             "git_path": "/Repos/test@vlfk.no/dp-notebooks/",
         },
     }
+
 
 @pytest.fixture
 def db_context() -> DbContext:
@@ -91,12 +93,13 @@ def test_that_build_job_sets_correct_run_as(
     result = build_job_config(basic_config, "test", db_context)
     assert result.run_as == {"user_name": "TestUser@vlfk.no"}
 
+
 def test_that_build_job_handles_specified_run_as(
-        config_w_run_as: dict[str, Any],
-        db_context: DbContext
-    ) -> None:
+    config_w_run_as: dict[str, Any], db_context: DbContext
+) -> None:
     result = build_job_config(config_w_run_as, "test", db_context)
     assert result.run_as == {"service_principal_name": "mysp"}
+
 
 def test_that_tags_are_set_correctly(
     basic_config: dict[str, Any], db_context: DbContext
@@ -127,7 +130,7 @@ def test_that_job_name_is_correct_when_in_prod_env(
     read_config.cache_clear()  # Clear the cache to ensure the config is reloaded
     db_context.username = "service_principal"
     db_context.is_service_principal = True
-    result = build_job_config(basic_config, env="prod", db_context=db_context)
+    result = build_job_config(basic_config, target="prod", db_context=db_context)
     assert result.name == "test_project_prod"
 
 
@@ -143,7 +146,7 @@ def test_that_job_name_is_correct_when_in_prod_env_w_org(
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/orgs/acme/domains/domainfoo/projects/projectfoo/flows/prep/taskfoo"
-    result = build_job_config(basic_config, env="prod", db_context=db_context)
+    result = build_job_config(basic_config, target="prod", db_context=db_context)
     assert result.name == "acme_domainfoo_projectfoo_taskfoo_prod"
 
 
@@ -152,7 +155,7 @@ def test_that_cluster_is_set_correct_in_job_config(
 ) -> None:
     db_context.username = "service_principal"
     db_context.is_service_principal = True
-    result = build_job_config(basic_config, env="test", db_context=db_context)
+    result = build_job_config(basic_config, target="test", db_context=db_context)
     assert result.job_clusters == [
         {
             "new_cluster": {
@@ -189,14 +192,14 @@ def test_that_values_from_yaml_is_set_correct_in_job_config(
         "git_commit": "abcdefgh123",
         "git_path": "/",
     }
-    result = build_job_config(config_from_yaml, env="test", db_context=db_context)
+    result = build_job_config(config_from_yaml, target="test", db_context=db_context)
     assert result.parameters == [
         {
             "name": "days_to_keep",
             "default": 2,
         },
         {
-            "name": "pipeline_env",
+            "name": "target",
             "default": "test",
         },
         {

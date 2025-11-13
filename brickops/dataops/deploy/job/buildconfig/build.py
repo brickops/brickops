@@ -8,32 +8,34 @@ from brickops.dataops.deploy.job.buildconfig.job_config import JobConfig, defaul
 from brickops.gitutils import clean_branch, commit_shortref
 
 
-def depname(*, db_context: DbContext, env: str, git_src: dict[str, Any]) -> str:
-    """Compose deployment name from env and git config."""
-    if env == "prod":
+def depname(*, db_context: DbContext, target: str, git_src: dict[str, Any]) -> str:
+    """Compose deployment name from target and git config."""
+    if target == "prod":
         return "prod"
     uname = get_username(db_context)
     branch = clean_branch(git_src["git_branch"])
     short_ref = commit_shortref(git_src["git_commit"])
-    return f"{env}_{uname}_{branch}_{short_ref}"
+    return f"{target}_{uname}_{branch}_{short_ref}"
 
 
 def build_job_config(
     cfg: dict[str, Any],
-    env: str,
+    target: str,
     db_context: DbContext,
 ) -> JobConfig:
     """Combine custom parameters with default parameters, and default cluster config."""
     full_cfg = defaultconfig()
-    if env != "prod":
+    if target != "prod":
         full_cfg.email_notifications = {}
 
     full_cfg.update(cfg)
-    full_cfg.name = jobname(db_context, env=env)
-    dep_name = depname(db_context=db_context, env=env, git_src=full_cfg.git_source)
+    full_cfg.name = jobname(db_context, target=target)
+    dep_name = depname(
+        db_context=db_context, target=target, git_src=full_cfg.git_source
+    )
     tags = _tags(cfg=cfg, depname=dep_name)
     full_cfg.tags = tags
-    full_cfg.parameters.extend(build_context_parameters(env, tags))
+    full_cfg.parameters.extend(build_context_parameters(target, tags))
     full_cfg = enrich_tasks(job_config=full_cfg, db_context=db_context)
     if not full_cfg.run_as:
         if db_context.is_service_principal:
@@ -46,12 +48,12 @@ def build_job_config(
     return full_cfg
 
 
-def build_context_parameters(env: str, tags: dict[str, Any]) -> list[dict[str, Any]]:
-    """Create a list of parameters containing the environment and git info."""
+def build_context_parameters(target: str, tags: dict[str, Any]) -> list[dict[str, Any]]:
+    """Create a list of parameters containing the target and git info."""
     return [
         {
-            "name": "pipeline_env",
-            "default": env,
+            "name": "target",
+            "default": target,
         },
         {
             "name": "git_url",

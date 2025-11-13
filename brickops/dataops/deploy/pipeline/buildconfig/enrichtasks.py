@@ -7,13 +7,13 @@ from brickops.datamesh.naming import name_from_path
 
 
 def enrich_tasks(
-    pipeline_config: PipelineConfig, db_context: DbContext, env: str
+    pipeline_config: PipelineConfig, db_context: DbContext, target: str
 ) -> PipelineConfig:
     # Set target catalog
     cat = name_from_path(
         resource="catalog",
         db_context=db_context,
-        env=env,
+        target=target,
     )
     pipeline_config.catalog = cat
     # Set target database/schema
@@ -24,10 +24,10 @@ def enrich_tasks(
         db=pipeline_config.schema,
         db_context=db_context,
         prepend_cat=False,
-        env=env,
+        target=target,
     )
-    # Set development mode for all envs except prod
-    pipeline_config.development = env != "prod"
+    # Set development mode for all targets except prod
+    pipeline_config.development = target != "prod"
     # For now, dlt does not support gitrefs, so we must use absolute path
     # chip off notebook name, and return its folder
     base_nb_path = os.path.dirname(db_context.notebook_path)

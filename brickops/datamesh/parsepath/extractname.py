@@ -14,7 +14,7 @@ class PipelineContext:
     username: str
     gitbranch: str
     gitshortref: str
-    env: str
+    target: str
 
 
 def extract_name_from_path(
@@ -42,7 +42,9 @@ def extract_name_from_path(
     if not parsed_mapping:
         return ""
     # Compose the name using dynamic mapping
-    naming_config = _get_naming_config(resource=resource, env=pipeline_context.env)
+    naming_config = _get_naming_config(
+        resource=resource, target=pipeline_context.target
+    )
     return _compose_name(
         naming_config=naming_config,
         parsed_mapping=parsed_mapping,
@@ -65,7 +67,7 @@ def _compose_name(
     # Add context variables
     format_dict.update(
         {
-            "env": pipeline_context.env,
+            "target": pipeline_context.target,
             "username": pipeline_context.username,
             "gitbranch": pipeline_context.gitbranch,
             "gitshortref": pipeline_context.gitshortref,
@@ -76,14 +78,14 @@ def _compose_name(
     return naming_config.format(**format_dict)
 
 
-def _get_naming_config(resource: str, env: str) -> str:
+def _get_naming_config(resource: str, target: str) -> str:
     """Get the naming configuration for the given resource."""
     config = _get_nested_config("naming", resource)
     if not config:
         config = DEFAULT_CONFIGS[resource]
-    if env in config:
-        config_str = config[env]
-    else:  # Use default 'other' config if env not specified
+    if target in config:
+        config_str = config[target]
+    else:  # Use default 'other' config if target not specified
         config_str = config["other"]
     _validate_naming_config(config_str)
     return config_str
@@ -92,7 +94,7 @@ def _get_naming_config(resource: str, env: str) -> str:
 def _validate_naming_config(config: str) -> None:
     """Validate that config string only contains alphanum, underscore, hyphen
     and curly brackets.
-    E.g. '{env}_{username}_{branch}_{gitshortref}_{db}'"""
+    E.g. '{target}_{username}_{branch}_{gitshortref}_{db}'"""
     if not re.match(r"^[\w\{\}_\-]+$", config):
         raise ValueError(
             f"Invalid naming config '{config}'. Only alphanumeric characters, underscores, hyphens, and curly brackets are allowed."
@@ -109,12 +111,12 @@ def _get_nested_config(key: str, resource: str) -> Any | None:
 
 DEFAULT_CONFIGS = {
     "job": {
-        "prod": "{domain}_{project}_{env}",
-        "other": "{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}",
+        "prod": "{domain}_{project}_{target}",
+        "other": "{domain}_{project}_{target}_{username}_{gitbranch}_{gitshortref}",
     },
     "pipeline": {
-        "prod": "{domain}_{project}_{env}_dlt",
-        "other": "{domain}_{project}_{env}_{username}_{gitbranch}_{gitshortref}_dlt",
+        "prod": "{domain}_{project}_{target}_dlt",
+        "other": "{domain}_{project}_{target}_{username}_{gitbranch}_{gitshortref}_dlt",
     },
     "catalog": {
         "prod": "{domain}",
@@ -122,6 +124,6 @@ DEFAULT_CONFIGS = {
     },
     "db": {
         "prod": "{db}",
-        "other": "{env}_{username}_{gitbranch}_{gitshortref}_{db}",
+        "other": "{target}_{username}_{gitbranch}_{gitshortref}_{db}",
     },
 }

@@ -55,7 +55,7 @@ def test_default_config_prod_env(
     result = enrich_tasks(
         pipeline_config=basic_config,
         db_context=databricks_context_data,
-        env="prod",
+        target="prod",
     )
     assert result.libraries == [
         {
@@ -81,7 +81,7 @@ def test_default_config_test_env(
     result = enrich_tasks(
         pipeline_config=basic_config,
         db_context=databricks_context_data,
-        env="test",
+        target="test",
     )
     assert result.libraries == [
         {

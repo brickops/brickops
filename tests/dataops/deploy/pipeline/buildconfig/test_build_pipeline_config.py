@@ -86,7 +86,7 @@ DEV_EXPECTED_CONFIG = {
     "parameters": [
         {
             "default": "test",
-            "name": "pipeline_env",
+            "name": "target",
         },
         {
             "default": "git_url",
@@ -107,7 +107,7 @@ DEV_EXPECTED_CONFIG = {
         "git_branch": "git_branch",
         "git_commit": "abcdefgh123",
         "git_url": "git_url",
-        "pipeline_env": "test",
+        "target": "test",
     },
 }
 
@@ -146,7 +146,7 @@ def test_tags_are_set_correctly(
         "git_commit": "abcdefgh123",
         "git_url": "git_url",
         "deployment": "test_TestUser_gitbranch_abcdefgh",
-        "pipeline_env": "test",
+        "target": "test",
     }
 
 
@@ -166,7 +166,7 @@ def test_pipeline_name_is_correct_when_in_prod_env(
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/domains/domainfoo/projects/projectfoo/flows/flowfoo/task_key"
-    result = build_pipeline_config(basic_config, env="prod", db_context=db_context)
+    result = build_pipeline_config(basic_config, target="prod", db_context=db_context)
     assert result.name == "domainfoo_projectfoo_prod_dlt"
 
 
@@ -177,7 +177,7 @@ def test_pipeline_name_is_correct_when_in_prod_env_w_org(
     db_context.username = "service_principal"
     db_context.is_service_principal = True
     db_context.notebook_path = "/Repos/test@vlfk.no/dp-notebooks/something/org/acme/domains/domainfoo/projects/projectfoo/flows/flowfoo/task_key"
-    result = build_pipeline_config(basic_config, env="prod", db_context=db_context)
+    result = build_pipeline_config(basic_config, target="prod", db_context=db_context)
     assert result.name == "domainfoo_projectfoo_prod_dlt"
 
 
@@ -193,14 +193,16 @@ def test_values_from_yaml_is_set_correct_in_pipeline_config(
         "git_commit": "abcdefgh123",
         "git_path": "/",
     }
-    result = build_pipeline_config(config_from_yaml, env="test", db_context=db_context)
+    result = build_pipeline_config(
+        config_from_yaml, target="test", db_context=db_context
+    )
     assert result.parameters == [
         {
             "name": "days_to_keep",
             "default": 2,
         },
         {
-            "name": "pipeline_env",
+            "name": "target",
             "default": "test",
         },
         {

@@ -20,16 +20,16 @@ def tablename(
     tbl: str,
     db: str,
     cat: str | None = None,
-    env: str | None = None,
+    target: str | None = None,
     db_context: DbContext | None = None,
 ) -> str:
     """Return a table name prefixed with db name for table of name tbl.
 
     If a catalog is not provided, it is derived from the notebook path.
-    If an env is not provided, it is derived from environment settings.
+    If a target is not provided, it is derived from environment settings.
     If a db_context is not provided, it is derived from the current context.
     Cat is the Unity Catalog catalog name.
-    
+
     db can either be a <catalog>.<db> path or a simply the database name.
     """
     # Get dbutils from calling module, as databricks lib not available in UC cluster
@@ -41,19 +41,19 @@ def tablename(
         raise ValueError(msg)
     if not db_context:
         db_context = get_context()
-    if not env:
-        env = current_env(db_context)
+    if not target:
+        target = current_env(db_context)
     if not cat:
-        cat = catname_from_path(db_context=db_context, env=env)
+        cat = catname_from_path(db_context=db_context, target=target)
 
     if "." not in db:
-        db_name = dbname(db=db, cat=cat, db_context=db_context, env=env)
+        db_name = dbname(db=db, cat=cat, db_context=db_context, target=target)
     else:
         db_name = db
     return _escape_sql_name(f"{db_name}.{tbl}")
 
 
-def name_from_path(*, resource: str, db_context: DbContext, env: str) -> str:
+def name_from_path(*, resource: str, db_context: DbContext, target: str) -> str:
     """Derive name from repo data mesh structure.
 
     The naming config defines how the name is composed
@@ -61,8 +61,8 @@ def name_from_path(*, resource: str, db_context: DbContext, env: str) -> str:
 
     naming:
       table:
-        prod: "{org}_{domain}_{project}_{env}"
-        other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitref}"
+        prod: "{org}_{domain}_{project}_{target}"
+        other: "{org}_{domain}_{project}_{target}_{username}_{gitbranch}_{gitref}"
 
     Example path:
     .../domains/transport/projects/taxinyc/flows/prep/revenue/revenue
@@ -71,7 +71,7 @@ def name_from_path(*, resource: str, db_context: DbContext, env: str) -> str:
     .../org/acme/domains/transport/projects/taxinyc/flows/prep/revenue/revenue
     """
     nb_path = db_context.notebook_path
-    pipeline_context = _get_pipeline_context(db_context, env=env)
+    pipeline_context = _get_pipeline_context(db_context, target=target)
     return _escape_sql_name(
         extract_name_from_path(
             path=nb_path,
@@ -86,15 +86,15 @@ def dbname(
     cat: str,
     db_context: DbContext | None = None,
     prepend_cat: bool = True,
-    env: str | None = None,
+    target: str | None = None,
 ) -> str:
-    """Generate a database name from db, cat, env, and possible path,
+    """Generate a database name from db, cat, target, and possible path,
     determined by the naming config for db, either default or in
     .brickopscfg/config.yml, e.g.
 
     db:
       prod: {db}
-      other: {env}_{username}_{gitbranch}_{gitref}_{db}.
+      other: {target}_{username}_{gitbranch}_{gitref}_{db}.
 
     if prepend_cat is True (default), prepend the catalog name to the db name."""
     if not db:
@@ -102,10 +102,10 @@ def dbname(
         raise ValueError(msg)
     if not db_context:
         db_context = get_context()
-    if not env:
-        env = current_env(db_context)
+    if not target:
+        target = current_env(db_context)
     nb_path = db_context.notebook_path
-    pipeline_context = _get_pipeline_context(db_context, env=env)
+    pipeline_context = _get_pipeline_context(db_context, target=target)
     db_only = extract_name_from_path(
         path=nb_path, resource="db", resource_name=db, pipeline_context=pipeline_context
     )
@@ -141,7 +141,7 @@ def _git_src_from_widget_params(db_context: DbContext) -> dict[str, Any]:
 
 
 def catname_from_path(
-    *, db_context: DbContext | None = None, env: str | None = None
+    *, db_context: DbContext | None = None, target: str | None = None
 ) -> str:
     """Derive catalog name from repo data mesh structure.
 
@@ -158,10 +158,10 @@ def catname_from_path(
     """
     if not db_context:  # Can be extracted from dbutils, available in notebooks
         db_context = get_context()
-    if not env:
-        env = current_env(db_context)
+    if not target:
+        target = current_env(db_context)
     nb_path = db_context.notebook_path
-    pipeline_context = _get_pipeline_context(db_context, env=env)
+    pipeline_context = _get_pipeline_context(db_context, target=target)
     return _escape_sql_name(
         extract_name_from_path(
             path=nb_path,
@@ -171,7 +171,7 @@ def catname_from_path(
     )
 
 
-def jobname(db_context: DbContext, env: str) -> str:
+def jobname(db_context: DbContext, target: str) -> str:
     """Derive job name from repo data mesh structure.
 
     The naming config defines how the job name is composed
@@ -179,8 +179,8 @@ def jobname(db_context: DbContext, env: str) -> str:
 
     naming:
       job:
-        prod: "{org}_{domain}_{project}_{env}"
-        other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitref}"
+        prod: "{org}_{domain}_{project}_{target}"
+        other: "{org}_{domain}_{project}_{target}_{username}_{gitbranch}_{gitref}"
 
     Example path:
     .../domains/transport/projects/taxinyc/flows/prep/revenue/revenue
@@ -189,7 +189,7 @@ def jobname(db_context: DbContext, env: str) -> str:
     .../org/acme/domains/transport/projects/taxinyc/flows/prep/revenue/revenue
     """
     nb_path = db_context.notebook_path
-    pipeline_context = _get_pipeline_context(db_context, env=env)
+    pipeline_context = _get_pipeline_context(db_context, target=target)
     return _escape_sql_name(
         extract_name_from_path(
             path=nb_path,
@@ -199,7 +199,7 @@ def jobname(db_context: DbContext, env: str) -> str:
     )
 
 
-def pipelinename(db_context: DbContext, env: str) -> str:
+def pipelinename(db_context: DbContext, target: str) -> str:
     """Derive pipeline name from repo data mesh structure.
 
     The naming config defines how the pipeline name is composed
@@ -207,8 +207,8 @@ def pipelinename(db_context: DbContext, env: str) -> str:
 
     naming:
       pipeline:
-        prod: "{org}_{domain}_{project}_{env}"
-        other: "{org}_{domain}_{project}_{env}_{username}_{gitbranch}_{gitref}"
+        prod: "{org}_{domain}_{project}_{target}"
+        other: "{org}_{domain}_{project}_{target}_{username}_{gitbranch}_{gitref}"
 
     Example path:
     .../domains/transport/projects/taxinyc/flows/prep/revenue/revenue
@@ -217,7 +217,7 @@ def pipelinename(db_context: DbContext, env: str) -> str:
     .../org/acme/domains/transport/projects/taxinyc/flows/prep/revenue/revenue
     """
     nb_path = db_context.notebook_path
-    pipeline_context = _get_pipeline_context(db_context, env=env)
+    pipeline_context = _get_pipeline_context(db_context, target=target)
     return _escape_sql_name(
         extract_name_from_path(
             path=nb_path,
@@ -227,15 +227,15 @@ def pipelinename(db_context: DbContext, env: str) -> str:
     )
 
 
-def _get_pipeline_context(db_context: DbContext, env: str) -> PipelineContext:
-    """Get pipeline context from databricks context and env.
+def _get_pipeline_context(db_context: DbContext, target: str) -> PipelineContext:
+    """Get pipeline context from databricks context and target.
     It is used to derive correct name in extract_name_from_path()."""
     git_src = _git_src(db_context)
     pipeline_context = PipelineContext(
         username=get_username(db_context),
         gitbranch=clean_branch(git_src["git_branch"]),
         gitshortref=commit_shortref(git_src["git_commit"]),
-        env=env,
+        target=target,
     )
     return pipeline_context
 
