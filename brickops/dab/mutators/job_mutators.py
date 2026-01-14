@@ -21,11 +21,8 @@ from .gitinfo import get_git_info
 logger = logging.getLogger(__name__)
 
 
-def _username(bundle: Bundle) -> str:
-    root_path = bundle.variables["root_path"]
-    # root_path = bundle.variables.get["root_path"]
-    logger.debug("job_mutators.py:" + repr(26) + ":root_path:" + repr(root_path))
-    return username_from_path(root_path)
+def _username(path: str) -> str:
+    return username_from_path(path)
 
 
 # @job_mutator
@@ -36,7 +33,7 @@ def brickops_job_params(
     logger.debug("bundle: %s", bundle)
     logger.debug("job: %s", job)
     bundle_path = bundlepath()
-    username = _username(bundle)
+    username = _username(bundle_path)
     git_info = get_git_info()
     logger.debug("git_info parsed from first .git dir found: %s", git_info)
     db_context = get_context_from_params(bundle_path, username, git_info)
