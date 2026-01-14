@@ -92,12 +92,16 @@ def _get_naming_config(resource: str, target: str) -> str:
 
 
 def _validate_naming_config(config: str) -> None:
-    """Validate that config string only contains alphanum, underscore, hyphen
-    and curly brackets.
-    E.g. '{target}_{username}_{branch}_{gitshortref}_{db}'"""
-    if not re.match(r"^[\w\{\}_\-]+$", config):
+    """Validate that config string only contains alphanum, underscore, hyphen,
+    square brackets and curly brackets.
+    E.g. '[{target} username] {domain}_{project}_{gitbranch}_{gitshortref}_dlt'"""
+    if not re.match(r"^[\w\{\}\[\]_\-\s]+$", config):
         raise ValueError(
-            f"Invalid naming config '{config}'. Only alphanumeric characters, underscores, hyphens, and curly brackets are allowed."
+            f"Invalid naming config '{config}'. Only alphanumeric characters, underscores, hyphens, spaces, square brackets and curly brackets are allowed."
+        )
+    if "{env}" in config:
+        raise ValueError(
+            f"Invalid naming config '{config}'. The placeholder '{{env}}' is not allowed, use {{target}} instead."
         )
 
 

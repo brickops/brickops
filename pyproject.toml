@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "brickops"
 version = "0.3.0"
@@ -8,6 +12,10 @@ dependencies = [
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
 ]
+
+[tool.setuptools.packages.find]
+include = ["brickops*"]
+exclude = ["tests*", "tmp*"]
 
 [dependency-groups]
 dev = [
@@ -49,6 +57,13 @@ pythonpath = "."
     "E501",    # Noteboks often have long lines
     "PLR2004", # Magic values are ok in notebooks
 ] # Most of the code will be in notebooks, and tooling support will vary. Impractical to enforce strict rules.
+
+[tool.ruff]
+extend-exclude = [
+    "tmp"
+]
+
+
 
 [tool.mypy]
 disallow_untyped_defs = true

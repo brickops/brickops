@@ -12,8 +12,8 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://adb-3862150152241085.5.azuredatabricks.net
-      root_path: /Users/john.erik.sloper@vlfk.no/.ide/dp-notebooks-dafb439e
+      host: https://dbc-639f4875-165d.cloud.databricks.com/
+      root_path: /Users/pal.de.vibe@knowit.no/.ide/dp-notebooks-dafb439e
 
   ## Optionally, there could be 'staging' or 'prod' targets here.
   #

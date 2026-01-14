@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import inspect
+import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pyspark.sql.session import SparkSession
@@ -10,12 +13,12 @@ if TYPE_CHECKING:
     from databricks.sdk.runtime.dbutils_stub import dbutils as dbutils_type
 
 
-def current_env(db_context: DbContext | None = None) -> str:
-    """Get the current environment.
+def current_target(db_context: DbContext | None = None) -> str:
+    """Get the current target.
 
     If target is not specified in the widgets, we rely on the username to detect
-    if we are running in the 'test' environment.
-    Default to what is set in the widgets if environment is not available and
+    if we are running in the 'test' target.
+    Default to what is set in the widgets if target is not available and
     finally prod if that also does not exist.
     """
     if db_context:
@@ -31,6 +34,27 @@ def get_context(dbutils: dbutils_type | None = None) -> DbContext:
     if dbutils is None:
         dbutils = get_dbutils()
     return _convert_to_data(dbutils)
+
+
+def get_context_from_params(path: str, username: str, git_info: dict) -> DbContext:
+    """Get context from from parameters.
+    We need to fall back to parameters when running naming functions in dab mutators."""
+    widgets = {
+        "git_url": git_info.get("url", ""),
+        "git_branch": git_info.get("branch", ""),
+        "git_commit": git_info.get("commit", ""),
+        "git_path": path,
+    }
+    # widgets = {for k, v in git_info.items()}
+
+    logger.debug("username: %s", username)
+    return DbContext(
+        api_url="",
+        api_token="",
+        notebook_path=path,
+        username=username,
+        widgets=widgets,
+    )
 
 
 def get_dbutils() -> dbutils_type:

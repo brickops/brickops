@@ -32,3 +32,9 @@ ruff:
 
 mypy:
 	uv run mypy --strict .
+
+test:
+	uv run pytest tests/
+
+testcov:
+	uv run pytest --cov=brickops --cov-report html tests/

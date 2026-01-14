@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from brickops.databricks.context import current_env, get_context
+from brickops.databricks.context import current_target, get_context
 from brickops.databricks.username import get_username
 from brickops.dataops.deploy.repo import git_source
 from brickops.gitutils import clean_branch, commit_shortref
@@ -42,7 +42,7 @@ def tablename(
     if not db_context:
         db_context = get_context()
     if not target:
-        target = current_env(db_context)
+        target = current_target(db_context)
     if not cat:
         cat = catname_from_path(db_context=db_context, target=target)
 
@@ -103,7 +103,7 @@ def dbname(
     if not db_context:
         db_context = get_context()
     if not target:
-        target = current_env(db_context)
+        target = current_target(db_context)
     nb_path = db_context.notebook_path
     pipeline_context = _get_pipeline_context(db_context, target=target)
     db_only = extract_name_from_path(
@@ -159,7 +159,7 @@ def catname_from_path(
     if not db_context:  # Can be extracted from dbutils, available in notebooks
         db_context = get_context()
     if not target:
-        target = current_env(db_context)
+        target = current_target(db_context)
     nb_path = db_context.notebook_path
     pipeline_context = _get_pipeline_context(db_context, target=target)
     return _escape_sql_name(

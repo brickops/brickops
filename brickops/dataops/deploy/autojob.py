@@ -5,7 +5,7 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from brickops.databricks import api
-from brickops.databricks.context import DbContext, current_env, get_context
+from brickops.databricks.context import DbContext, current_target, get_context
 from brickops.dataops.deploy.job.buildconfig import build_job_config
 from brickops.dataops.deploy.readconfig import read_config_yaml
 from brickops.dataops.deploy.repo import git_source
@@ -27,7 +27,7 @@ def autojob(
     db_context = get_context()
 
     if not env:
-        env = current_env(db_context)
+        env = current_target(db_context)
 
     if env not in ("test", "dev", "prod"):
         msg = f"env must be 'test', 'dev' or 'prod', not {env}"
