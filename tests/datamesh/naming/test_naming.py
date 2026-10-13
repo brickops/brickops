@@ -238,3 +238,15 @@ def test_pipelinename(
 ) -> None:
     result = pipelinename(db_context=db_context, env="test")
     assert result == "domainfoo_projectfoo_test_TestUser_gitbranch_abcdefgh_dlt"
+
+
+def test_missing_git_context_raises_helpful_error(
+    db_context_empty_widgets_short_path: DbContext,
+) -> None:
+    with pytest.raises(ValueError, match="git_branch"):
+        dbname(
+            db="test_db",
+            cat="training",
+            db_context=db_context_empty_widgets_short_path,
+            env="test",
+        )

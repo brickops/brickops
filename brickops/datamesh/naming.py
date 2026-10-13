@@ -29,7 +29,7 @@ def tablename(
     If an env is not provided, it is derived from environment settings.
     If a db_context is not provided, it is derived from the current context.
     Cat is the Unity Catalog catalog name.
-    
+
     db can either be a <catalog>.<db> path or a simply the database name.
     """
     # Get dbutils from calling module, as databricks lib not available in UC cluster
@@ -231,6 +231,15 @@ def _get_pipeline_context(db_context: DbContext, env: str) -> PipelineContext:
     """Get pipeline context from databricks context and env.
     It is used to derive correct name in extract_name_from_path()."""
     git_src = _git_src(db_context)
+    missing = [k for k in ("git_branch", "git_commit") if not git_src.get(k)]
+    if missing:
+        msg = (
+            f"Could not resolve git context: missing {', '.join(missing)}. "
+            "The Repos API lookup returned nothing (e.g. on serverless compute) "
+            "and no widgets were set. Define the widgets 'git_branch' and "
+            "'git_commit' (dbutils.widgets.text) or pass them as job parameters."
+        )
+        raise ValueError(msg)
     pipeline_context = PipelineContext(
         username=get_username(db_context),
         gitbranch=clean_branch(git_src["git_branch"]),
