@@ -84,3 +84,45 @@ def test_nothing_found_returns_empty(mocker: pytest_mock.MockerFixture) -> None:
     _patch_status(mocker, {})
     mocker.patch("brickops.databricks.api.ApiClient.get_repos", return_value=[])
     assert git_source(_ctx()) == {}
+
+
+def test_no_api_url_returns_empty() -> None:
+    ctx = _ctx()
+    ctx.api_url = ""
+    assert git_source(ctx) == {}
+
+
+def test_nearest_git_root_wins_over_outer(mocker: pytest_mock.MockerFixture) -> None:
+    _patch_status(
+        mocker,
+        {
+            "/Users/u@x.no/course/flows": {"object_type": "REPO", "object_id": 2},
+            "/Users/u@x.no/course": {"object_type": "REPO", "object_id": 1},
+        },
+    )
+    get_repo = mocker.patch(
+        "brickops.databricks.api.ApiClient.get_repo", return_value=REPO
+    )
+    git_source(_ctx())
+    get_repo.assert_called_once_with("2")
+
+
+def test_api_error_on_get_repo_returns_empty(
+    mocker: pytest_mock.MockerFixture,
+) -> None:
+    _patch_status(
+        mocker, {"/Users/u@x.no/course": {"object_type": "REPO", "object_id": 1}}
+    )
+    mocker.patch(
+        "brickops.databricks.api.ApiClient.get_repo", side_effect=ApiClientError("boom")
+    )
+    assert git_source(_ctx()) == {}
+
+
+def test_listing_fallback_ignores_prefix_only_sibling(
+    mocker: pytest_mock.MockerFixture,
+) -> None:
+    _patch_status(mocker, {})
+    sibling = {**REPO, "path": "/Users/u@x.no/course-fork", "branch": "wrong"}
+    mocker.patch("brickops.databricks.api.ApiClient.get_repos", return_value=[sibling])
+    assert git_source(_ctx()) == {}
