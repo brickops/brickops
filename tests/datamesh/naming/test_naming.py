@@ -238,3 +238,38 @@ def test_pipelinename(
 ) -> None:
     result = pipelinename(db_context=db_context, env="test")
     assert result == "domainfoo_projectfoo_test_TestUser_gitbranch_abcdefgh_dlt"
+
+
+def test_missing_git_context_raises_helpful_error(
+    db_context_empty_widgets_short_path: DbContext,
+) -> None:
+    with pytest.raises(ValueError, match="git_branch"):
+        dbname(
+            db="test_db",
+            cat="training",
+            db_context=db_context_empty_widgets_short_path,
+            env="test",
+        )
+
+
+def test_missing_git_commit_only_raises_error(db_context: DbContext) -> None:
+    db_context.widgets["git_commit"] = ""
+    with pytest.raises(ValueError, match="git_commit") as exc:
+        dbname(db="test_db", cat="training", db_context=db_context)
+    assert "git_branch" not in str(exc.value).split("missing")[1].split(".")[0]
+
+
+def test_widgets_provide_git_context_when_api_has_none(
+    db_context_empty_widgets_short_path: DbContext,
+) -> None:
+    db_context_empty_widgets_short_path.widgets.update(
+        {"git_branch": "molde", "git_commit": "0000000abc"}
+    )
+    result = dbname(
+        db="test_db",
+        cat="training",
+        db_context=db_context_empty_widgets_short_path,
+        env="test",
+    )
+    assert "molde" in result
+    assert "0000000a" in result
